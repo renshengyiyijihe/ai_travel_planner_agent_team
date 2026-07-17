@@ -1,0 +1,119 @@
+ # --- Python (backend/) ---
+ __pycache__/
+ *.py[cod]
+ *$py.class
+ *.so
+ .venv/
+ .venv_*/
+ venv/
+ env/
+ .pytest_cache/
+ .mypy_cache/
+ .ruff_cache/
+ .dmypy.json
+ dmypy.json
+ *.egg-info/
+ .eggs/
+ dist/
+ build/
+ develop-eggs/
+ downloads/
+ eggs/
+ parts/
+ sdist/
+ var/
+ wheels/
+ pip-wheel-metadata/
+ share/python-wheels/
+ *.egg
+ MANIFEST
+ instances/
+ .hypothesis/
+ .tox/
+ .nox/
+ .coverage
+ .coverage.*
+ coverage.*
+ *.cover
+ htmlcov/
+ .pylint.d/
+ .pytype/
+ .pyre/
+
+ # --- Node.js (nestjs-backend/, client/) ---
+ node_modules/
+ .pnp.*
+ .yarn/*
+ !.yarn/patches
+ !.yarn/plugins
+ !.yarn/releases
+ !.yarn/sdks
+ !.yarn/versions
+ .npm
+ .pnpm-debug.log
+
+ # --- Build output ---
+ dist/
+ .next/
+ out/
+ build/
+ *.tsbuildinfo
+ next-env.d.ts
+ .cache/
+
+ # --- Docker ---
+ docker-compose.override.yml
+ .docker/
+
+ # --- IDE / Editor ---
+ .vscode/
+ .idea/
+ *.swp
+ *.swo
+ *~
+ .project
+ .settings/
+ .classpath
+ .factorypath
+ *.sublime-workspace
+ *.sublime-project
+
+ # --- OS files ---
+ .DS_Store
+ .DS_Store?
+ ._*
+ .Spotlight-V100
+ .Trashes
+ ehthumbs.db
+ Thumbs.db
+ Desktop.ini
+ $RECYCLE.BIN/
+ *.lnk
+
+ # --- Logs ---
+ *.log
+ log/
+ logs/
+
+ # --- Database / Prisma ---
+ prisma/*.db
+ prisma/*.db-journal
+
+ # --- Uploads ---
+ uploads/
+ public/uploads/
+ media/
+
+ # --- Generated / Temp ---
+ tmp/
+ temp/
+ .tmp/
+ *.bak
+ *.orig
+
+ # --- Prisma generated client ---
+ node_modules/.prisma/
+ client/node_modules/.prisma/
+ nestjs-backend/node_modules/.prisma/
+
+**/node_modules/
