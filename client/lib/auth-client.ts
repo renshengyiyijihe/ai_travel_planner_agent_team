@@ -1,6 +1,7 @@
 import { createAuthClient } from "better-auth/react"
 
 export const authClient = createAuthClient({
+  secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.NEXT_PUBLIC_BASE_URL || "",
   redirects: {
     afterSignIn: "/plan",
