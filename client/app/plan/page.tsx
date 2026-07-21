@@ -230,7 +230,7 @@ export default function Plan() {
     data: session,
     isPending: sessionLoading,
     error: sessionError,
-  } = authClient.useSession();
+  } = authClient?.useSession() || { data: null, isPending: false, error: null };
 
   const form = useForm<TripFormData>({
     defaultValues: {
