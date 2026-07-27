@@ -16,7 +16,7 @@ interface TripFormData {
   budgetCurrency: string;
   travelStyle: string;
   budgetFlexible: boolean;
-  vibes: string[];
+  vibes: string[];/*  */
   priorities: string[];
   interests?: string;
   rooms: number;

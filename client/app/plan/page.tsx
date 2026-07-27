@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { authClient } from "@/lib/auth-client";
 import {
   Card,
   CardContent,
@@ -225,13 +224,6 @@ export default function Plan() {
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const router = useRouter();
 
-  // Better Auth session hook
-  const {
-    data: session,
-    isPending: sessionLoading,
-    error: sessionError,
-  } = authClient?.useSession() || { data: null, isPending: false, error: null };
-
   const form = useForm<TripFormData>({
     defaultValues: {
       name: "",
@@ -254,30 +246,6 @@ export default function Plan() {
     },
   });
 
-  // Prefill user name when session data is available
-  useEffect(() => {
-    if (session?.user?.name && !form.getValues("name")) {
-      form.setValue("name", session.user.name);
-    }
-  }, [session, form]);
-
-  // Handle session loading and error states
-  if (sessionLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-muted-foreground">Loading your session...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (sessionError) {
-    console.error("Session error:", sessionError);
-    // Continue without session data - allow anonymous users
-  }
-
   const onSubmit = async (data: TripFormData) => {
     setIsSubmitting(true);
     setSubmitMessage(null);
@@ -291,10 +259,8 @@ export default function Plan() {
     });
 
     try {
-      // Include user ID from session if available
       const submitData = {
         ...data,
-        userId: session?.user?.id || null, // Include user ID from Better Auth session
       };
 
       const response = await fetch("/api/plan/submit", {
@@ -572,11 +538,6 @@ export default function Plan() {
                           <FormLabel className="text-base font-semibold flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-primary" />
                             What&apos;s your name?
-                            {session?.user?.name && (
-                              <Badge variant="secondary" className="text-xs">
-                                Prefilled from account
-                              </Badge>
-                            )}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -586,15 +547,7 @@ export default function Plan() {
                             />
                           </FormControl>
                           <FormDescription>
-                            {session?.user?.name ? (
-                              <span className="text-green-600 flex items-center gap-1">
-                                <Sparkles className="w-3 h-3" />
-                                Welcome back, {session.user.name}! Your name has
-                                been prefilled.
-                              </span>
-                            ) : (
-                              "Enter your name to personalize your trip plan"
-                            )}
+                            Enter your name to personalize your trip plan
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
