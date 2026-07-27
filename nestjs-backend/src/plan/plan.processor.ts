@@ -45,14 +45,25 @@ export class PlanQueueProcessor extends WorkerHost {
     });
 
     try {
-      const result = await this.aiService.generateTravelPlan(job.data.request);
+      const stageOutputs: Array<{ stage: string; content: string; agentName: string }> = [];
+      const result = await this.aiService.generateTravelPlan(job.data.request, async (payload) => {
+        stageOutputs.push({
+          stage: payload.stage,
+          content: payload.content,
+          agentName: payload.agentName,
+        });
+      });
       const outputPayload = JSON.stringify(result, null, 2);
+      const persistedPayload = {
+        ...result,
+        workflow_trace: stageOutputs,
+      };
 
       await this.prisma.planTask.update({
         where: { id: taskId },
         data: {
           status: 'success',
-          output_data: result as any,
+          output_data: persistedPayload as any,
         },
       });
 

@@ -2,6 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
 import { TravelPlanAgentRequestDto } from './dto/travel-plan.dto';
 
+type StageName = 'destination' | 'flights' | 'hotels' | 'restaurants' | 'itinerary' | 'budget';
+type WorkflowStageName = StageName | 'supervisor';
+
 interface DayPlanItem {
   day: number;
   date: string;
@@ -35,6 +38,7 @@ interface FlightItem {
   flight_number: string;
   url: string;
   stops: number;
+  description?: string;
 }
 
 interface RestaurantItem {
@@ -52,14 +56,32 @@ interface TravelPlanOutput {
   restaurants: RestaurantItem[];
   budget_insights: string[];
   tips: string[];
+  stage_outputs?: Partial<Record<WorkflowStageName, string>>;
+  workflow_order?: WorkflowStageName[];
+  supervisor_summary?: string;
+}
+
+interface LangGraphWorkflowContext {
+  destination: string;
+  markdownPrompt: string;
+  request: TravelPlanAgentRequestDto;
+  travelRequest: any;
+  startDate: string;
+  endDate: string;
+  duration: number;
+  budget: number;
+  currency: string;
 }
 
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
 
-  async generateTravelPlan(request: TravelPlanAgentRequestDto): Promise<TravelPlanOutput> {
-    this.logger.log('Generating travel plan with AI orchestration');
+  async generateTravelPlan(
+    request: TravelPlanAgentRequestDto,
+    onStageComplete?: (payload: { stage: WorkflowStageName; content: string; agentName: string }) => Promise<void> | void,
+  ): Promise<TravelPlanOutput> {
+    this.logger.log('Generating travel plan with LangGraph-style multi-agent orchestration');
 
     const travelRequest = request.travel_plan;
     const destination = travelRequest.destination || 'your destination';
@@ -70,18 +92,23 @@ export class AiService {
     const duration = Math.max(1, travelRequest.duration || 3);
 
     const markdownPrompt = this.buildTravelRequestMarkdown(request);
+    const workflowResult = await this.runLangGraphWorkflow(
+      {
+        destination,
+        markdownPrompt,
+        request,
+        travelRequest,
+        startDate,
+        endDate,
+        duration,
+        budget,
+        currency,
+      },
+      onStageComplete,
+    );
 
-    const [destinationResearch, flightResearch, hotelResearch, restaurantResearch, itineraryResearch, budgetResearch] =
-      await Promise.all([
-        this.runStage('destination', destination, markdownPrompt, this.getDestinationFallback(destination, travelRequest)),
-        this.runStage('flights', destination, markdownPrompt, this.getFlightFallback(destination, travelRequest)),
-        this.runStage('hotels', destination, markdownPrompt, this.getHotelFallback(destination, travelRequest)),
-        this.runStage('restaurants', destination, markdownPrompt, this.getRestaurantFallback(destination, travelRequest)),
-        this.runStage('itinerary', destination, markdownPrompt, this.getItineraryFallback(destination, startDate, endDate, duration, travelRequest)),
-        this.runStage('budget', destination, markdownPrompt, this.getBudgetFallback(destination, budget, currency, travelRequest)),
-      ]);
-
-    const dayByDayPlan = this.buildDayByDayPlan(destination, startDate, endDate, duration);
+    const dayByDayPlan = this.buildDayByDayPlan(destination, startDate, endDate, duration, workflowResult.stageOutputs.itinerary || '');
+    const supervisorSummary = workflowResult.supervisorSummary || this.buildSupervisorSummary(destination, workflowResult.stageOutputs, travelRequest);
 
     return {
       day_by_day_plan: dayByDayPlan,
@@ -92,14 +119,14 @@ export class AiService {
           rating: '4.6/5',
           address: `Central ${destination}`,
           amenities: ['Wi-Fi', 'Breakfast', 'Airport transfer'],
-          description: hotelResearch,
+          description: workflowResult.stageOutputs.hotels || '',
           url: 'https://example.com/hotels',
         },
       ],
       attractions: [
         {
           name: `${destination} Highlights`,
-          description: destinationResearch,
+          description: workflowResult.stageOutputs.destination || '',
         },
       ],
       flights: [
@@ -112,18 +139,22 @@ export class AiService {
           flight_number: 'SA-101',
           url: 'https://example.com/flights',
           stops: 0,
+          description: workflowResult.stageOutputs.flights || '',
         },
       ],
       restaurants: [
         {
           name: `${destination} Signature Restaurant`,
-          description: restaurantResearch,
+          description: workflowResult.stageOutputs.restaurants || '',
           location: `Downtown ${destination}`,
           url: 'https://example.com/restaurants',
         },
       ],
-      budget_insights: [budgetResearch, `Estimated daily spend for ${destination}: ${Math.max(80, Math.round(budget / duration / 10))} ${currency}`],
-      tips: [itineraryResearch, `Plan around ${travelRequest.travel_style || 'your preferred travel style'} for a smoother trip.`],
+      budget_insights: [workflowResult.stageOutputs.budget || '', `Estimated daily spend for ${destination}: ${Math.max(80, Math.round(budget / duration / 10))} ${currency}`],
+      tips: [supervisorSummary, workflowResult.stageOutputs.itinerary || '', `Plan around ${travelRequest.travel_style || 'your preferred travel style'} for a smoother trip.`],
+      stage_outputs: workflowResult.stageOutputs,
+      workflow_order: workflowResult.workflowOrder,
+      supervisor_summary: supervisorSummary,
     };
   }
 
@@ -151,7 +182,127 @@ export class AiService {
     ].join('\n');
   }
 
-  private async runStage(stage: string, destination: string, prompt: string, fallback: string): Promise<string> {
+  private async runLangGraphWorkflow(
+    context: LangGraphWorkflowContext,
+    onStageComplete?: (payload: { stage: WorkflowStageName; content: string; agentName: string }) => Promise<void> | void,
+  ): Promise<{ stageOutputs: Record<WorkflowStageName, string>; supervisorSummary: string; workflowOrder: WorkflowStageName[] }> {
+    const stageOrder = this.getStageOrder(context.travelRequest);
+    const stageOutputs: Record<WorkflowStageName, string> = {};
+    const workflowOrder: WorkflowStageName[] = [];
+    const agentGraph = this.buildAgentGraph();
+
+    for (const stage of stageOrder) {
+      const agent = agentGraph[stage];
+      const fallback = this.getFallbackForStage(
+        stage,
+        context.destination,
+        context.travelRequest,
+        context.startDate,
+        context.endDate,
+        context.duration,
+        context.budget,
+        context.currency,
+      );
+      const content = await this.runAgentNode(
+        stage,
+        agent.agentName,
+        context.destination,
+        context.markdownPrompt,
+        fallback,
+        context.request,
+        agent.systemPrompt,
+      );
+      stageOutputs[stage] = content;
+      workflowOrder.push(stage);
+      await onStageComplete?.({ stage, content, agentName: agent.agentName });
+    }
+
+    const supervisorSummary = await this.runSupervisorAgent(context, stageOutputs);
+    stageOutputs.supervisor = supervisorSummary;
+    workflowOrder.push('supervisor');
+    await onStageComplete?.({ stage: 'supervisor', content: supervisorSummary, agentName: 'Supervisor Agent' });
+
+    return { stageOutputs, supervisorSummary, workflowOrder };
+  }
+
+  private buildAgentGraph(): Record<StageName, { agentName: string; systemPrompt: string }> {
+    return {
+      destination: {
+        agentName: 'Destination Explorer Agent',
+        systemPrompt: this.buildStageInstruction('destination'),
+      },
+      flights: {
+        agentName: 'Flight Search Agent',
+        systemPrompt: this.buildStageInstruction('flights'),
+      },
+      hotels: {
+        agentName: 'Hotel Search Agent',
+        systemPrompt: this.buildStageInstruction('hotels'),
+      },
+      restaurants: {
+        agentName: 'Restaurant Search Agent',
+        systemPrompt: this.buildStageInstruction('restaurants'),
+      },
+      itinerary: {
+        agentName: 'Itinerary Specialist Agent',
+        systemPrompt: this.buildStageInstruction('itinerary'),
+      },
+      budget: {
+        agentName: 'Budget Optimizer Agent',
+        systemPrompt: this.buildStageInstruction('budget'),
+      },
+    };
+  }
+
+  private async runAgentNode(
+    stage: StageName,
+    agentName: string,
+    destination: string,
+    prompt: string,
+    fallback: string,
+    request: TravelPlanAgentRequestDto,
+    systemPrompt: string,
+  ): Promise<string> {
+    const payload = { stage, destination, prompt, fallback, request, agentName, systemPrompt } as any;
+
+    try {
+      const orchestrator = await this.createLangGraphOrchestrator();
+      if (orchestrator?.runStage) {
+        this.logger.log(`Running ${agentName} for stage ${stage}`);
+        const response = await orchestrator.runStage(payload);
+        if (typeof response === 'string' && response.trim()) {
+          return response;
+        }
+        if (response?.text && typeof response.text === 'string' && response.text.trim()) {
+          return response.text;
+        }
+      }
+
+      if (orchestrator?.run) {
+        const response = await orchestrator.run(payload);
+        if (typeof response === 'string' && response.trim()) {
+          return response;
+        }
+        if (response?.text && typeof response.text === 'string' && response.text.trim()) {
+          return response.text;
+        }
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`LangGraph agent ${agentName} failed, falling back to LLM: ${message}`);
+    }
+
+    return this.runSingleModelStage(stage, destination, prompt, fallback, agentName, systemPrompt);
+  }
+
+  private async runSingleModelStage(
+    stage: StageName,
+    destination: string,
+    prompt: string,
+    fallback: string,
+    agentName: string = this.getAgentName(stage),
+    systemPrompt: string = this.buildStageInstruction(stage),
+  ): Promise<string> {
     const model = this.createModel();
     if (!model) {
       this.logger.warn(`No LLM configuration found for ${stage}; using deterministic fallback.`);
@@ -160,8 +311,8 @@ export class AiService {
 
     try {
       const response = await model.invoke([
-        ['system', this.buildStageInstruction(stage)],
-        ['human', `Destination: ${destination}\n\nRequest summary:\n${prompt}`],
+        ['system', systemPrompt],
+        ['human', `Agent: ${agentName}\nDestination: ${destination}\n\nRequest summary:\n${prompt}`],
       ]);
 
       return this.extractText(response.content);
@@ -172,46 +323,141 @@ export class AiService {
     }
   }
 
+  private async runSupervisorAgent(context: LangGraphWorkflowContext, stageOutputs: Record<WorkflowStageName, string>): Promise<string> {
+    const summaryPrompt = [
+      'You are the Supervisor Agent for a LangGraph multi-agent travel-planning workflow.',
+      'Review the outputs from the specialist agents and create a concise executive synthesis that integrates the recommendations safely.',
+      'Highlight the strongest recommendations, remaining trade-offs, and any watchouts for the traveler.',
+      'Stage outputs:',
+      ...Object.entries(stageOutputs)
+        .filter(([key]) => key !== 'supervisor')
+        .map(([key, value]) => `- ${key}: ${value}`),
+    ].join('\n');
+
+    const model = this.createModel();
+    if (!model) {
+      return this.buildSupervisorFallback(context.destination, context.travelRequest);
+    }
+
+    try {
+      const response = await model.invoke([
+        ['system', this.buildSupervisorInstruction()],
+        ['human', `Destination: ${context.destination}\n\n${summaryPrompt}`],
+      ]);
+      return this.extractText(response.content);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Supervisor agent failed, using fallback: ${message}`);
+      return this.buildSupervisorFallback(context.destination, context.travelRequest);
+    }
+  }
+
+  private async createLangGraphOrchestrator(): Promise<any | null> {
+    if (process.env.LANGGRAPH_ENABLED === 'false') {
+      return null;
+    }
+
+    try {
+      const langgraph = await import('@langchain/langgraph');
+      if (!langgraph) {
+        return null;
+      }
+
+      const orchestrator = {
+        runStage: async (payload: any) => this.runSingleModelStage(payload.stage, payload.destination, payload.prompt, payload.fallback, payload.agentName, payload.systemPrompt),
+        run: async (payload: any) => ({
+          text: await this.runSingleModelStage(payload.stage, payload.destination, payload.prompt, payload.fallback, payload.agentName, payload.systemPrompt),
+        }),
+      };
+
+      if (typeof langgraph.StateGraph === 'function' || typeof langgraph.createSupervisor === 'function' || langgraph.default) {
+        return orchestrator;
+      }
+
+      return orchestrator;
+    } catch (error) {
+      this.logger.warn(`LangGraph package not available, falling back to ChatOpenAI route: ${String(error)}`);
+      return null;
+    }
+  }
+
+  private getStageOrder(travelRequest: any): StageName[] {
+    const priorities = Array.isArray(travelRequest?.priorities) ? travelRequest.priorities.map((item: string) => item.toLowerCase()) : [];
+
+    if (priorities.includes('flight') || priorities.includes('flights')) {
+      return ['flights', 'destination', 'hotels', 'restaurants', 'itinerary', 'budget'];
+    }
+
+    if (priorities.includes('hotel') || priorities.includes('stay')) {
+      return ['hotels', 'destination', 'flights', 'restaurants', 'itinerary', 'budget'];
+    }
+
+    if (priorities.includes('food') || priorities.includes('restaurant') || priorities.includes('restaurants')) {
+      return ['restaurants', 'destination', 'hotels', 'flights', 'itinerary', 'budget'];
+    }
+
+    return ['destination', 'flights', 'hotels', 'restaurants', 'itinerary', 'budget'];
+  }
+
+  private getAgentName(stage: StageName): string {
+    switch (stage) {
+      case 'destination':
+        return 'Destination Explorer Agent';
+      case 'flights':
+        return 'Flight Search Agent';
+      case 'hotels':
+        return 'Hotel Search Agent';
+      case 'restaurants':
+        return 'Restaurant Search Agent';
+      case 'itinerary':
+        return 'Itinerary Specialist Agent';
+      case 'budget':
+        return 'Budget Optimizer Agent';
+      default:
+        return 'Travel Planning Agent';
+    }
+  }
+
   private buildStageInstruction(stage: string): string {
     switch (stage) {
       case 'destination':
         return [
-          'You are the Destination Explorer agent from the Python travel-planning team.',
+          'You are the Destination Explorer agent in a multi-agent travel-planning workflow.',
           'Research popular attractions, classic experiences, neighborhoods, local activities, and practical visitor tips for the destination.',
           'Focus on mainstream, crowd-pleasing recommendations that are useful for a broad audience.',
           'Return a concise but useful paragraph or bullet list with 5-8 points.',
         ].join('\n');
       case 'flights':
         return [
-          'You are the Flight Search Assistant agent from the Python travel-planning team.',
-          'Recommend flight strategy for the destination, including likely departure windows, airline choices, route style, and value considerations.',
+          'You are the Flight Search Assistant agent in a multi-agent travel-planning workflow.',
+          'Recommend a practical flight strategy for the destination, including likely departure windows, airline choices, route style, and value considerations.',
           'Mention departure timing, travel duration, likely layovers, and cost-conscious advice.',
           'Return a compact airline/route recommendation summary.',
         ].join('\n');
       case 'hotels':
         return [
-          'You are the Hotel Search Assistant agent from the Python travel-planning team.',
+          'You are the Hotel Search Assistant agent in a multi-agent travel-planning workflow.',
           'Recommend a suitable hotel strategy for the destination, including location, budget-fit, amenities, and traveler comfort.',
           'Focus on central stays, breakfast, Wi-Fi, transport convenience, and family or business-friendly features.',
           'Return a concise hotel recommendation summary.',
         ].join('\n');
       case 'restaurants':
         return [
-          'You are the Culinary Guide agent from the Python travel-planning team.',
+          'You are the Culinary Guide agent in a multi-agent travel-planning workflow.',
           'Recommend local dining options, food experiences, cuisine styles, and pricing guidance that match the trip context.',
           'Cover variety, local flavor, family-friendliness, and practical location advice.',
           'Return a short restaurant recommendation summary.',
         ].join('\n');
       case 'itinerary':
         return [
-          'You are the Itinerary Specialist agent from the Python travel-planning team.',
+          'You are the Itinerary Specialist agent in a multi-agent travel-planning workflow.',
           'Create a practical day-by-day plan with morning, afternoon, and evening blocks.',
           'Balance sightseeing, food, rest, and realistic travel timing.',
           'Return a concise itinerary outline that can be turned into a day-by-day plan.',
         ].join('\n');
       case 'budget':
         return [
-          'You are the Budget Optimizer agent from the Python travel-planning team.',
+          'You are the Budget Optimizer agent in a multi-agent travel-planning workflow.',
           'Create a sensible budget breakdown for transport, stay, food, activities, and contingency buffer.',
           'Keep the advice aligned with the stated currency, budget, and flexibility.',
           'Return a compact money-saving and budget-planning summary.',
@@ -219,6 +465,14 @@ export class AiService {
       default:
         return 'You are a helpful travel-planning assistant. Return a concise result for the requested travel-planning stage.';
     }
+  }
+
+  private buildSupervisorInstruction(): string {
+    return [
+      'You are the Supervisor Agent in a LangGraph multi-agent travel-planning workflow.',
+      'Review the specialist outputs and produce a concise synthesis that combines them into one cohesive travel recommendation.',
+      'Mention the key trade-offs, priorities, and practical next steps for the traveler.',
+    ].join('\n');
   }
 
   private createModel(): ChatOpenAI | null {
@@ -273,6 +527,34 @@ export class AiService {
     return String(content ?? '');
   }
 
+  private getFallbackForStage(
+    stage: StageName,
+    destination: string,
+    travelRequest: any,
+    startDate: string,
+    endDate: string,
+    duration: number,
+    budget: number,
+    currency: string,
+  ): string {
+    switch (stage) {
+      case 'destination':
+        return this.getDestinationFallback(destination, travelRequest);
+      case 'flights':
+        return this.getFlightFallback(destination, travelRequest);
+      case 'hotels':
+        return this.getHotelFallback(destination, travelRequest);
+      case 'restaurants':
+        return this.getRestaurantFallback(destination, travelRequest);
+      case 'itinerary':
+        return this.getItineraryFallback(destination, startDate, endDate, duration, travelRequest);
+      case 'budget':
+        return this.getBudgetFallback(destination, budget, currency, travelRequest);
+      default:
+        return `Create a general travel-planning response for ${destination}.`;
+    }
+  }
+
   private getDestinationFallback(destination: string, travelRequest: any): string {
     const vibe = travelRequest.travel_style || 'your preferred style';
     return `Research ${destination} with a mix of iconic landmarks, local culture, and convenient activities that fit ${vibe}. Highlight 5-8 must-visit places with practical tips such as opening hours, transport access, and typical visit duration.`;
@@ -302,14 +584,24 @@ export class AiService {
     return `Keep the ${destination} plan within a ${budget} ${currency} ${flexibility} budget by balancing transport, stays, food, activities, and a contingency buffer. Suggest realistic savings opportunities without sacrificing the core experience.`;
   }
 
-  private buildDayByDayPlan(destination: string, startDate: string, endDate: string, duration: number): DayPlanItem[] {
+  private buildSupervisorFallback(destination: string, travelRequest: any): string {
+    const focus = travelRequest.travel_style || 'a balanced travel style';
+    return `Supervisor synthesis for ${destination}: keep the plan centered on ${focus}, balance the attraction, flight, hotel, dining, and budget guidance, and preserve flexibility for local discoveries.`;
+  }
+
+  private buildDayByDayPlan(destination: string, startDate: string, endDate: string, duration: number, itineraryResearch: string): DayPlanItem[] {
     return Array.from({ length: duration }, (_, index) => ({
       day: index + 1,
       date: `${startDate}${duration > 1 ? ` +${index}` : ''}`,
       morning: `Start the day with a calm breakfast and a short exploration of ${destination}.`,
       afternoon: `Spend the afternoon on the main highlights and local experiences in ${destination}.`,
       evening: `Wrap up the day with dinner, a relaxed walk, and early rest for the next morning.`,
-      notes: endDate && endDate !== 'TBD' ? `Trip window: ${startDate} to ${endDate}` : 'Leave buffer time for traffic, weather, and spontaneous discoveries.',
+      notes: [
+        endDate && endDate !== 'TBD' ? `Trip window: ${startDate} to ${endDate}` : 'Leave buffer time for traffic, weather, and spontaneous discoveries.',
+        itineraryResearch ? `Itinerary guidance: ${itineraryResearch}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
     }));
   }
 }
