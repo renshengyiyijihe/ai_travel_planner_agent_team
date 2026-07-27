@@ -29,7 +29,7 @@ async function bootstrap() {
   // });
 
   app.enableCors({
-    origin: "*",
+    origin: true,
   });
 
   app.useGlobalPipes(
