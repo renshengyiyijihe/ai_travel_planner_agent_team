@@ -27,42 +27,39 @@ export default function Home() {
             <span className="text-accent">TripCraft AI</span>
           </h1>
           <h2 className="text-2xl font-semibold sm:text-3xl mt-4 text-muted-foreground">
-            Your Journey, Perfectly Crafted with Intelligence
+            您的旅程，由智能为您精心打造
           </h2>
           <p className="mt-6 text-lg leading-8 text-secondary-foreground max-w-3xl mx-auto">
-            Stop juggling dozens of tabs and conflicting travel info. Our
-            AI-powered platform turns your travel dreams into reality—complete
-            with flights, hotels, activities, and budget—all from a simple
-            conversation about your perfect trip.
+            不再为繁杂的旅行信息疲于奔命。我们的 AI 平台只需一次对话，
+            即可帮你规划机票、酒店、活动和预算，打造理想旅行。
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link href="/plan">
               <Button size="lg" className="bg-primary hover:bg-primary/90">
                 <Plane className="w-4 h-4 mr-2" />
-                Plan My Trip
+                立即规划行程
               </Button>
             </Link>
             <Button variant="ghost" size="lg">
-              See How It Works <span aria-hidden="true">→</span>
+              查看流程 <span aria-hidden="true">→</span>
             </Button>
           </div>
         </div>
 
         {/* How It Works Section */}
         <div className="mt-20">
-          <h3 className="text-3xl font-bold text-center mb-12">How It Works</h3>
+          <h3 className="text-3xl font-bold text-center mb-12">使用方式</h3>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="text-center">
               <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6 mx-auto border-2 border-primary/20">
                 <span className="text-2xl font-bold text-primary">1</span>
               </div>
               <h4 className="text-xl font-semibold mb-4">
-                Fill Once, Dream Big
+                填写一次，梦想成行
               </h4>
               <p className="text-muted-foreground">
-                Tell us about your ideal trip—destination, dates, style, budget,
-                and preferences. Our thoughtful form captures everything in
-                minutes.
+                告诉我们你的理想行程：目的地、日期、风格、预算和偏好，
+                几分钟即可完成。
               </p>
             </div>
             <div className="text-center">
@@ -70,12 +67,11 @@ export default function Home() {
                 <span className="text-2xl font-bold text-foreground">2</span>
               </div>
               <h4 className="text-xl font-semibold mb-4">
-                AI Agents Take Over
+                AI 代理为你规划
               </h4>
               <p className="text-muted-foreground">
-                Specialized AI agents work together on flights, lodging,
-                activities, and budgeting—all happening seamlessly in the
-                background.
+                专业 AI 代理协同工作，负责航班、住宿、活动和预算，
+                自动完成整个行程规划。
               </p>
             </div>
             <div className="text-center">
@@ -83,11 +79,11 @@ export default function Home() {
                 <span className="text-2xl font-bold text-accent">3</span>
               </div>
               <h4 className="text-xl font-semibold mb-4">
-                Complete Itinerary Ready
+                行程即刻生成
               </h4>
               <p className="text-muted-foreground">
-                Get a full day-by-day plan with flights, accommodations,
-                activities, costs, and booking links—all beautifully organized.
+                获取完整逐日行程，包括航班、住宿、活动、费用和预订链接，
+                清晰呈现。
               </p>
             </div>
           </div>
@@ -96,7 +92,7 @@ export default function Home() {
         {/* Feature Cards */}
         <div className="mt-20">
           <h3 className="text-3xl font-bold text-center mb-12">
-            Why Choose TripCraft AI
+            为什么选择 TripCraft AI
           </h3>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <Card className="hover:shadow-lg transition-shadow border-primary/20 hover:border-primary/40">
@@ -105,14 +101,12 @@ export default function Home() {
                   <Sparkles className="w-6 h-6 text-primary" />
                 </div>
                 <CardTitle className="text-lg">
-                  AI-Powered Intelligence
+                  AI 智能推荐
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Multi-agent AI system that understands your travel style and
-                  crafts personalized itineraries that feel like they were made
-                  just for you.
+                  多智能体系统理解你的出行偏好，打造专属私人行程。
                 </CardDescription>
               </CardContent>
             </Card>
@@ -122,13 +116,11 @@ export default function Home() {
                 <div className="flex items-center justify-center w-12 h-12 bg-accent/10 rounded-lg mb-4">
                   <MapPin className="w-6 h-6 text-accent" />
                 </div>
-                <CardTitle className="text-lg">Hidden Gems Discovery</CardTitle>
+                <CardTitle className="text-lg">深度攻略发现</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Go beyond tourist traps. We find unique experiences, local
-                  events, and offbeat attractions that match your interests
-                  perfectly.
+                  不只是热门景点，还为你发现独特体验、本地活动和小众打卡地。
                 </CardDescription>
               </CardContent>
             </Card>
@@ -138,13 +130,11 @@ export default function Home() {
                 <div className="flex items-center justify-center w-12 h-12 bg-secondary/20 rounded-lg mb-4">
                   <Zap className="w-6 h-6 text-foreground" />
                 </div>
-                <CardTitle className="text-lg">Instant Planning</CardTitle>
+                <CardTitle className="text-lg">一键极速生成</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  No more hours of research and comparison. Get a complete
-                  travel plan in moments, with everything balanced perfectly for
-                  your needs.
+                  不再花费数小时搜索比价。瞬间得到完整旅行方案，满足你的需求。
                 </CardDescription>
               </CardContent>
             </Card>
@@ -154,12 +144,11 @@ export default function Home() {
                 <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
                   <Star className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle className="text-lg">Smart Memory</CardTitle>
+                <CardTitle className="text-lg">智能记忆</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Learns from your preferences over time. Each trip becomes more
-                  tailored as our AI remembers what you love.
+                  随着使用次数增加，AI 会记住你的偏好，行程越来越贴合你的口味。
                 </CardDescription>
               </CardContent>
             </Card>
@@ -169,13 +158,11 @@ export default function Home() {
                 <div className="flex items-center justify-center w-12 h-12 bg-accent/10 rounded-lg mb-4">
                   <Calendar className="w-6 h-6 text-accent" />
                 </div>
-                <CardTitle className="text-lg">Complete Coordination</CardTitle>
+                <CardTitle className="text-lg">全程无缝衔接</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Flights, hotels, activities, and budget—all coordinated
-                  seamlessly. No conflicts, no stress, just a perfect plan ready
-                  to execute.
+                  航班、酒店、活动和预算无缝协调。无需纠结，轻松出发。
                 </CardDescription>
               </CardContent>
             </Card>
@@ -185,12 +172,11 @@ export default function Home() {
                 <div className="flex items-center justify-center w-12 h-12 bg-secondary/20 rounded-lg mb-4">
                   <Heart className="w-6 h-6 text-foreground" />
                 </div>
-                <CardTitle className="text-lg">Crafted with Care</CardTitle>
+                <CardTitle className="text-lg">用心打造</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Every detail is thoughtfully considered to create not just a
-                  trip, but an experience that feels truly magical and personal.
+                  每个细节都经过用心考量，让你的旅程不仅是行程，更是难忘体验。
                 </CardDescription>
               </CardContent>
             </Card>
@@ -200,15 +186,14 @@ export default function Home() {
         {/* CTA Section */}
         <div className="mt-20 text-center bg-primary/5 rounded-2xl py-16 px-8 border border-primary/10">
           <h3 className="text-3xl font-bold mb-6">
-            Ready to Make Travel Planning Magical?
+            准备让旅行规划变成魔法了吗？
           </h3>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Stop spending hours planning and start experiencing. Let our AI
-            create your perfect journey.
+            不要再花费时间规划，开始去体验旅行吧。让 AI 帮你创造完美旅程。
           </p>
           <Button size="lg" className="bg-primary hover:bg-primary/90">
             <Plane className="w-4 h-4 mr-2" />
-            Start Planning Now
+            立即开始规划
           </Button>
         </div>
       </main>

@@ -12,7 +12,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "TripCraft AI",
-  description: "Your Journey, Perfectly Crafted with Intelligence",
+  description: "您的旅程，由智能为您精心打造",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="zh">
       <body className={`${dmSans.variable} antialiased`}>
         <Header />
         {children}

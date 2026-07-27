@@ -9,7 +9,7 @@ export default function Footer() {
             © 2024 TripCraft AI. All rights reserved.
           </p>
           <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-            Made with <Heart className="w-4 h-4 text-red-500 fill-current" /> by{" "}
+            由 <Heart className="w-4 h-4 text-blue-500 fill-current" /> 用心制作，作者：
             <a
               href="https://x.com/mtwn105"
               target="_blank"

@@ -71,48 +71,55 @@ import {
 import { cn } from "@/lib/utils";
 
 const travelVibes = [
-  { id: "relaxing", label: "Relaxing", icon: Waves },
-  { id: "adventure", label: "Adventure", icon: Mountain },
-  { id: "romantic", label: "Romantic", icon: Heart },
-  { id: "cultural", label: "Cultural", icon: Building },
-  { id: "food-focused", label: "Food-focused", icon: Utensils },
-  { id: "nature", label: "Nature", icon: TreePine },
-  { id: "photography", label: "Photography", icon: Camera },
+  { id: "relaxing", label: "放松轻松", icon: Waves },
+  { id: "adventure", label: "冒险刺激", icon: Mountain },
+  { id: "romantic", label: "浪漫之旅", icon: Heart },
+  { id: "cultural", label: "文化探索", icon: Building },
+  { id: "food-focused", label: "美食主题", icon: Utensils },
+  { id: "nature", label: "亲近自然", icon: TreePine },
+  { id: "photography", label: "摄影打卡", icon: Camera },
 ];
 
 const travelStyles = [
   {
     value: "backpacker",
-    label: "Backpacker",
-    description: "Budget-conscious, authentic experiences",
+    label: "背包客",
+    description: "经济实惠，体验当地生活",
   },
   {
     value: "comfort",
-    label: "Comfort",
-    description: "Balance of comfort and value",
+    label: "舒适型",
+    description: "舒适与性价比兼顾",
   },
   {
     value: "luxury",
-    label: "Luxury",
-    description: "Premium experiences and stays",
+    label: "奢华型",
+    description: "高端体验与优质住宿",
   },
   {
     value: "eco-conscious",
-    label: "Eco-conscious",
-    description: "Sustainable and responsible travel",
+    label: "环保型",
+    description: "可持续、低碳旅行",
   },
 ];
 
 const travelingWithOptions = [
-  "Solo",
-  "Partner",
-  "Friends",
-  "Family with kids",
-  "Extended family",
-  "Colleagues",
+  "独自出行",
+  "伴侣",
+  "朋友",
+  "带孩子的家庭",
+  "亲友团",
+  "同事",
 ];
 
-const ageGroupOptions = ["Under 18", "18-25", "26-35", "36-50", "51-65", "65+"];
+const ageGroupOptions = [
+  "18岁以下",
+  "18-25岁",
+  "26-35岁",
+  "36-50岁",
+  "51-65岁",
+  "65岁以上",
+];
 
 // Custom NumberInput component with +/- buttons
 const NumberInput = ({
@@ -295,45 +302,45 @@ export default function Plan() {
   const steps = [
     {
       id: "basics",
-      title: "Trip Basics",
+      title: "行程基础",
       icon: Plane,
-      description: "Where and when are you going?",
+      description: "您要去哪里，何时出发？",
     },
     {
       id: "group",
-      title: "Group Details",
+      title: "出行成员",
       icon: Users,
-      description: "Who's joining the adventure?",
+      description: "谁将与您同行？",
     },
     {
       id: "budget",
-      title: "Budget & Style",
+      title: "预算与风格",
       icon: DollarSign,
-      description: "What's your travel style?",
+      description: "您的旅行预算和风格是什么？",
     },
     {
       id: "vibe",
-      title: "Trip Vibe",
+      title: "出行氛围",
       icon: Heart,
-      description: "What experience are you after?",
+      description: "您想要什么样的体验？",
     },
     {
       id: "accommodation",
-      title: "Stay Preferences",
+      title: "住宿偏好",
       icon: Home,
-      description: "Where will you rest?",
+      description: "哪里最适合您休息？",
     },
     {
       id: "pace",
-      title: "Pace & Style",
+      title: "节奏与风格",
       icon: Clock,
-      description: "How do you like to travel?",
+      description: "您喜欢怎样的旅行节奏？",
     },
     {
       id: "personal",
-      title: "Personal Touch",
+      title: "个性定制",
       icon: Globe,
-      description: "Tell us more about you",
+      description: "告诉我们更多您的偏好",
     },
   ];
 
@@ -368,7 +375,7 @@ export default function Plan() {
 
     try {
       switch (currentStep) {
-        case 0: // Trip Basics
+        case 0: // 行程基础
           if (
             !currentValues.name ||
             !currentValues.destination ||
@@ -377,7 +384,7 @@ export default function Plan() {
             !currentValues.duration
           ) {
             setValidationError(
-              "Please fill in all required fields to continue"
+              "请填写所有必填项以继续"
             );
             form.trigger([
               "name",
@@ -389,44 +396,44 @@ export default function Plan() {
             return false;
           }
           break;
-        case 1: // Group Details
+        case 1: // 出行成员
           if (
             !currentValues.travelingWith ||
             !currentValues.adults ||
             !currentValues.ageGroups?.length
           ) {
             setValidationError(
-              "Please select who you're traveling with, number of adults, and age groups"
+              "请选择出行人员、成人数量和年龄段"
             );
             form.trigger(["travelingWith", "adults", "ageGroups"]);
             return false;
           }
           break;
-        case 2: // Budget & Style
+        case 2: // 预算与风格
           if (!currentValues.budget || !currentValues.travelStyle) {
             setValidationError(
-              "Please enter your budget and select a travel style"
+              "请输入预算并选择旅行风格"
             );
             form.trigger(["budget", "travelStyle"]);
             return false;
           }
           break;
-        case 3: // Trip Vibe
+        case 3: // 出行氛围
           if (!currentValues.vibes?.length) {
-            setValidationError("Please select at least one trip vibe");
+            setValidationError("请选择至少一个出行氛围");
             return false;
           }
           break;
-        case 4: // Accommodation
+        case 4: // 住宿偏好
           if (!currentValues.rooms) {
-            setValidationError("Please specify the number of rooms needed");
+            setValidationError("请填写所需房间数量");
             form.trigger(["rooms"]);
             return false;
           }
           break;
-        case 5: // Pace & Style
+        case 5: // 节奏与风格
           if (!currentValues.pace?.length) {
-            setValidationError("Please set your preferred activity pace");
+            setValidationError("请设置您偏好的活动节奏");
             form.trigger(["pace"]);
             return false;
           }
@@ -456,11 +463,10 @@ export default function Plan() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
             <Luggage className="w-8 h-8 text-primary" />
-            Plan Your Perfect Trip
+            规划完美旅程
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Tell us about your dream destination and we&apos;ll craft the
-            perfect itinerary just for you
+            告诉我们你的理想目的地，我们将为你打造专属行程。
           </p>
         </div>
 
@@ -537,17 +543,17 @@ export default function Plan() {
                         <FormItem>
                           <FormLabel className="text-base font-semibold flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-primary" />
-                            What&apos;s your name?
+                            您的姓名是什么？
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Your name"
+                              placeholder="请输入您的姓名"
                               {...field}
                               className="h-12 text-base"
                             />
                           </FormControl>
                           <FormDescription>
-                            Enter your name to personalize your trip plan
+                            我们会根据您的名字为行程增添个性化建议。
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -562,11 +568,11 @@ export default function Plan() {
                           <FormItem>
                             <FormLabel className="text-base font-semibold flex items-center gap-2">
                               <MapPin className="w-4 h-4" />
-                              Where are you going?
+                              您要去哪里？
                             </FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="e.g., Paris, Bali, Tokyo"
+                                placeholder="例如：巴黎、巴厘岛、东京"
                                 {...field}
                                 className="h-12 text-base"
                               />
@@ -583,11 +589,11 @@ export default function Plan() {
                           <FormItem>
                             <FormLabel className="text-base font-semibold flex items-center gap-2">
                               <Plane className="w-4 h-4" />
-                              Where are you starting from?
+                              您从哪里出发？
                             </FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="e.g., New York City, Delhi"
+                                placeholder="例如：纽约、德里"
                                 {...field}
                                 className="h-12 text-base"
                               />
@@ -603,7 +609,7 @@ export default function Plan() {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <FormLabel className="text-base font-semibold flex items-center gap-2">
                           <CalendarIcon className="w-4 h-4 text-primary" />
-                          When are you traveling?
+                          您的旅行时间是？
                         </FormLabel>
                         <div className="inline-flex items-center bg-muted rounded-lg p-1 w-fit">
                           <button
@@ -623,7 +629,7 @@ export default function Plan() {
                             }}
                           >
                             <CalendarIcon className="w-3 h-3 mr-1.5" />
-                            Date Picker
+                            日期选择器
                           </button>
                           <button
                             type="button"
@@ -642,7 +648,7 @@ export default function Plan() {
                             }}
                           >
                             <Edit3 className="w-3 h-3 mr-1.5" />
-                            Flexible
+                            灵活输入
                           </button>
                         </div>
                       </div>
@@ -655,7 +661,7 @@ export default function Plan() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-sm font-medium">
-                                  Start Date
+                                  出发日期
                                 </FormLabel>
                                 <FormControl>
                                   <Popover>
@@ -672,7 +678,7 @@ export default function Plan() {
                                         {field.value ? (
                                           format(new Date(field.value), "PPP")
                                         ) : (
-                                          <span>Pick start date</span>
+                                          <span>选择出发日期</span>
                                         )}
                                       </Button>
                                     </PopoverTrigger>
@@ -709,7 +715,7 @@ export default function Plan() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-sm font-medium">
-                                  End Date
+                                  结束日期
                                 </FormLabel>
                                 <FormControl>
                                   <Popover>
@@ -726,7 +732,7 @@ export default function Plan() {
                                         {field.value ? (
                                           format(new Date(field.value), "PPP")
                                         ) : (
-                                          <span>Pick end date</span>
+                                          <span>选择结束日期</span>
                                         )}
                                       </Button>
                                     </PopoverTrigger>
@@ -773,21 +779,18 @@ export default function Plan() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-sm font-medium">
-                                  Travel Dates
+                                  旅行日期
                                 </FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="e.g., July 10 – July 17, August 2025 (flexible), Summer 2025"
+                                    placeholder="例如：7月10日–7月17日、2025年8月（灵活）、2025年夏季"
                                     {...field}
                                     className="h-12 text-base"
                                   />
                                 </FormControl>
                                 <FormDescription className="text-xs text-muted-foreground">
                                   <Sparkles className="w-3 h-3 inline mr-1" />
-                                  You can enter flexible dates like &quot;August
-                                  2025&quot;, &quot;Summer 2025
-                                  (flexible)&quot;, or &quot;Early
-                                  December&quot;
+                                  您可以输入灵活日期，如“2025年8月”、“2025年夏季（灵活）”或“12月上旬”。
                                 </FormDescription>
                                 <FormMessage />
                               </FormItem>
@@ -818,12 +821,12 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            How many days?
+                            旅行天数
                           </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
-                              placeholder="5"
+                              placeholder="例如：5"
                               {...field}
                               onChange={(e) =>
                                 field.onChange(Number(e.target.value))
@@ -833,7 +836,7 @@ export default function Plan() {
                           </FormControl>
                           <FormDescription className="text-sm text-muted-foreground">
                             <Lightbulb className="w-3 h-3 inline mr-1" />
-                            Approximate number of days (leave empty if flexible)
+                            预计出行天数（如时间灵活可留空）
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -851,7 +854,7 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Who are you traveling with?
+                            您与谁同行？
                           </FormLabel>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -885,7 +888,7 @@ export default function Plan() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold">
-                              Number of adults
+                              成人数量
                             </FormLabel>
                             <FormControl>
                               <NumberInput
@@ -905,7 +908,7 @@ export default function Plan() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold">
-                              Number of children
+                              儿童数量
                             </FormLabel>
                             <FormControl>
                               <NumberInput
@@ -926,7 +929,7 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Age groups of travelers
+                            旅客年龄段
                           </FormLabel>
                           <div className="flex flex-wrap gap-2 mt-2">
                             {ageGroupOptions.map((ageGroup) => (
@@ -973,7 +976,7 @@ export default function Plan() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-base font-semibold">
-                                Budget per person
+                                每人预算
                               </FormLabel>
                               <FormControl>
                                 <div className="px-4 py-6">
@@ -1088,7 +1091,7 @@ export default function Plan() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold">
-                              Currency
+                              货币
                             </FormLabel>
                             <Select
                               onValueChange={(value) => {
@@ -1126,7 +1129,7 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Preferred travel style
+                            首选旅行风格
                           </FormLabel>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -1168,11 +1171,10 @@ export default function Plan() {
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
                             <FormLabel className="text-base font-semibold">
-                              Budget flexibility
+                              预算灵活性
                             </FormLabel>
                             <FormDescription>
-                              Can you go a bit over budget for amazing
-                              experiences?
+                              您是否愿意为美好体验适度超出预算？
                             </FormDescription>
                           </div>
                           <FormControl>
@@ -1196,7 +1198,7 @@ export default function Plan() {
                       render={() => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            What kind of vibe are you looking for?
+                            您希望这次旅行有什么样的氛围？
                           </FormLabel>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                             {travelVibes.map((vibe) => {
@@ -1247,7 +1249,7 @@ export default function Plan() {
                       render={() => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Trip priorities (optional)
+                            旅行优先选择（可选）
                           </FormLabel>
                           <div className="flex flex-wrap gap-2 mt-2">
                             {[
@@ -1292,7 +1294,7 @@ export default function Plan() {
                             />
                           </FormControl>
                           <FormDescription>
-                            Help us personalize your trip
+                            帮助我们更精准地定制您的专属行程。
                           </FormDescription>
                         </FormItem>
                       )}
@@ -1309,7 +1311,7 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            How many rooms do you need?
+                            您需要几间房？
                           </FormLabel>
                           <FormControl>
                             <NumberInput
@@ -1319,7 +1321,7 @@ export default function Plan() {
                             />
                           </FormControl>
                           <FormDescription>
-                            This helps us suggest the right accommodations
+                            这将帮助我们推荐最适合的住宿方案。
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -1350,9 +1352,9 @@ export default function Plan() {
                                 className="w-full"
                               />
                               <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                                <span>Very relaxed</span>
-                                <span>Balanced</span>
-                                <span>Action-packed</span>
+                                <span>非常轻松</span>
+                                <span>节奏适中</span>
+                                <span>充实紧凑</span>
                               </div>
                             </div>
                           </FormControl>
@@ -1383,7 +1385,7 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Have you been to this destination before?
+                            您之前去过这个目的地吗？
                           </FormLabel>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -1392,11 +1394,11 @@ export default function Plan() {
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="no" id="no" />
-                              <Label htmlFor="no">No, first time!</Label>
+                              <Label htmlFor="no">没有，第一次去</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="yes" id="yes" />
-                              <Label htmlFor="yes">Yes, been before</Label>
+                              <Label htmlFor="yes">是的，以前去过</Label>
                             </div>
                           </RadioGroup>
                         </FormItem>
@@ -1409,17 +1411,17 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Any places you&apos;ve loved in the past?
+                            过去有哪些你特别喜欢的地方？
                           </FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="e.g., Loved the temples in Kyoto, enjoyed the beaches in Goa..."
+                              placeholder="例如：喜欢京都的寺庙，喜欢果阿的海滩..."
                               {...field}
                               className="min-h-[80px] text-base"
                             />
                           </FormControl>
                           <FormDescription>
-                            This helps us understand your travel style
+                            这有助于我们更好地把握您的旅行品味。
                           </FormDescription>
                         </FormItem>
                       )}
@@ -1431,18 +1433,17 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Anything else you&apos;d like us to know?
+                            还有什么想让我们知道的吗？
                           </FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="e.g., This is our honeymoon, we're vegetarian, love hidden gems..."
+                              placeholder="例如：这是蜜月旅行、我是素食者、喜欢小众景点..."
                               {...field}
                               className="min-h-[100px] text-base"
                             />
                           </FormControl>
                           <FormDescription>
-                            Share any special requirements, dietary
-                            restrictions, or preferences
+                            请填写任何特殊需求或偏好。
                           </FormDescription>
                         </FormItem>
                       )}
@@ -1475,11 +1476,11 @@ export default function Plan() {
                 className="h-12 px-6"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Previous
+                上一步
               </Button>
 
               <span className="text-sm text-muted-foreground">
-                Step {currentStep + 1} of {steps.length}
+                第 {currentStep + 1} 步 / 共 {steps.length} 步
               </span>
 
               {currentStep === steps.length - 1 ? (
@@ -1491,12 +1492,12 @@ export default function Plan() {
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                      Creating Trip...
+                      正在创建行程...
                     </>
                   ) : (
                     <>
                       <Star className="w-4 h-4 mr-2" />
-                      Create My Trip
+                      创建我的行程
                     </>
                   )}
                 </Button>
@@ -1510,7 +1511,7 @@ export default function Plan() {
                   disabled={isSubmitting}
                   className="h-12 px-6"
                 >
-                  Next
+                  下一步
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               )}

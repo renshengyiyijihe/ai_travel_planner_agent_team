@@ -416,9 +416,9 @@ export default function TripDetailsPage() {
     return (
       <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-10rem)]">
         <Loader2 size={48} className="animate-spin text-primary mb-4" />
-        <h1 className="text-2xl font-semibold mb-2">Loading Trip Details</h1>
+        <h1 className="text-2xl font-semibold mb-2">正在加载行程详情</h1>
         <p className="text-muted-foreground text-center">
-          Fetching your trip plan...
+          正在获取您的行程信息...
         </p>
       </div>
     );
@@ -429,13 +429,13 @@ export default function TripDetailsPage() {
     return (
       <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-10rem)]">
         <Landmark size={64} className="text-muted-foreground mb-4" />
-        <h1 className="text-2xl font-semibold mb-2">Trip Not Found</h1>
+        <h1 className="text-2xl font-semibold mb-2">未找到行程</h1>
         <p className="text-muted-foreground text-center">
           {error ||
-            "The trip you are looking for does not exist or could not be loaded."}
+            "未找到相关行程，或行程加载失败。"}
         </p>
         <Link href="/plans" className="mt-4 text-primary hover:underline">
-          Go to your trip plans
+          返回我的行程
         </Link>
       </div>
     );
@@ -740,17 +740,17 @@ export default function TripDetailsPage() {
         <div className="text-center py-10 border rounded-lg">
           <Info size={48} className="text-muted-foreground mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">
-            {trip.status === "pending" && "Trip Plan in Progress"}
-            {trip.status === "in-progress" && "Trip Plan is Being Generated"}
-            {trip.status === "failed" && "Failed to Generate Trip Plan"}
+            {trip.status === "pending" && "行程规划已开始"}
+            {trip.status === "in-progress" && "行程正在生成中"}
+            {trip.status === "failed" && "行程生成失败"}
           </h2>
           <p className="text-muted-foreground">
             {trip.status === "pending" &&
-              "Your trip itinerary is currently being planned. Please wait as we create your personalized travel plan."}
+              "我们的系统正在为您规划行程，请稍候，个性化旅程即将完成。"}
             {trip.status === "in-progress" &&
-              "We are working on your trip details. This might take a few moments. The page will automatically update when your plan is ready."}
+              "正在完善您的行程详情，可能需要一点时间。页面会在行程准备好后自动更新。"}
             {trip.status === "failed" &&
-              "Something went wrong while generating your trip plan. Please try again or contact support."}
+              "生成过程中出现问题，请稍后重试或联系客服。"}
           </p>
 
           {/* Show current step when available */}

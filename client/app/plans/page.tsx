@@ -111,11 +111,11 @@ export default function Plans() {
       if (data.success) {
         setTripPlans(data.tripPlans);
       } else {
-        setError(data.message || "Failed to fetch trip plans");
+        setError(data.message || "获取行程列表失败");
       }
     } catch (err) {
-      console.error("Error fetching trip plans:", err);
-      setError("Failed to fetch trip plans");
+      console.error("获取行程列表错误：", err);
+      setError("获取行程列表失败");
     } finally {
       setLoading(false);
     }
@@ -132,13 +132,13 @@ export default function Plans() {
       if (data.success) {
         // Remove the plan from the local state
         setTripPlans(tripPlans.filter((plan) => plan.id !== planId));
-        toast.success("Trip plan deleted successfully");
+        toast.success("行程已成功删除");
       } else {
-        toast.error(data.message || "Failed to delete trip plan");
+        toast.error(data.message || "删除行程失败");
       }
     } catch (err) {
-      console.error("Error deleting trip plan:", err);
-      toast.error("Failed to delete trip plan");
+      console.error("删除行程错误：", err);
+      toast.error("删除行程失败");
     } finally {
       setDeletingPlanId(null);
     }
