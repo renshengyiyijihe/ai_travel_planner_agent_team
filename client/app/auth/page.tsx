@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,57 +27,6 @@ export default function AuthPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
 
-  async function handleSignIn(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const result = await authClient.signIn.email({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (result.error) {
-        toast.error(result.error.message || "登录失败");
-        return;
-      }
-
-      toast.success("欢迎回来！正在跳转到行程页面...");
-      router.push("/plan");
-    } catch (error) {
-      toast.error("发生未知错误");
-      console.error("登录失败：", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const result = await authClient.signUp.email({
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-      });
-
-      if (result.error) {
-        toast.error(result.error.message || "创建账号失败");
-        return;
-      }
-
-      toast.success("账号创建成功！正在跳转...");
-      router.push("/plan");
-    } catch (error) {
-      toast.error("发生未知错误");
-      console.error("注册失败：", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
@@ -98,7 +46,7 @@ export default function AuthPage() {
             </TabsList>
 
             <TabsContent value="signin" className="space-y-4">
-              <form onSubmit={handleSignIn} className="space-y-4">
+              <form  className="space-y-4">
                 <div className="space-y-2">
                   <label
                     htmlFor="email"
@@ -140,7 +88,7 @@ export default function AuthPage() {
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4">
-              <form onSubmit={handleSignUp} className="space-y-4">
+              <form className="space-y-4">
                 <div className="space-y-2">
                   <label
                     htmlFor="name"
