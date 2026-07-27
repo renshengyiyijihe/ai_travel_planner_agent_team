@@ -8,7 +8,7 @@ import { QueueModule } from './tasks/queue.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    QueueModule,
+    // QueueModule,
     PrismaModule,
     PlanModule,
     CommonModule,
