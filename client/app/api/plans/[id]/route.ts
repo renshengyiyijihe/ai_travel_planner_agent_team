@@ -20,7 +20,7 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          message: 'Trip plan not found'
+          message: '未找到行程'
         },
         { status: 404 }
       );
@@ -38,7 +38,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: false,
-        message: 'Failed to fetch trip plan'
+        message: '获取行程详情失败'
       },
       { status: 500 }
     );
@@ -84,7 +84,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        message: 'Trip plan deleted successfully'
+        message: '行程已成功删除'
       },
       { status: 200 }
     );
@@ -93,7 +93,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        message: 'Failed to delete trip plan'
+        message: '删除行程失败'
       },
       { status: 500 }
     );

@@ -32,12 +32,12 @@ export class PlanQueueProcessor extends WorkerHost {
       create: {
         tripPlanId,
         status: 'in_progress',
-        currentStep: 'Generating travel plan',
+        currentStep: '正在生成行程',
         startedAt: new Date(),
       },
       update: {
         status: 'in_progress',
-        currentStep: 'Generating travel plan',
+        currentStep: '正在生成行程',
         startedAt: new Date(),
         error: null,
         completedAt: null,
@@ -61,11 +61,11 @@ export class PlanQueueProcessor extends WorkerHost {
         create: {
           tripPlanId,
           itinerary: outputPayload,
-          summary: `Travel plan generated for ${job.data.request?.travel_plan?.destination || 'your destination'}`,
+          summary: `已为 ${job.data.request?.travel_plan?.destination || '您的目的地'} 生成行程`,
         },
         update: {
           itinerary: outputPayload,
-          summary: `Travel plan generated for ${job.data.request?.travel_plan?.destination || 'your destination'}`,
+          summary: `已为 ${job.data.request?.travel_plan?.destination || '您的目的地'} 生成行程`,
         },
       });
 
@@ -73,7 +73,7 @@ export class PlanQueueProcessor extends WorkerHost {
         where: { tripPlanId },
         data: {
           status: 'completed',
-          currentStep: 'Travel plan generated',
+          currentStep: '行程已生成',
           completedAt: new Date(),
           error: null,
         },
@@ -93,7 +93,7 @@ export class PlanQueueProcessor extends WorkerHost {
         where: { tripPlanId },
         data: {
           status: 'failed',
-          currentStep: 'Travel plan generation failed',
+          currentStep: '行程生成失败',
           error: message,
           completedAt: new Date(),
         },

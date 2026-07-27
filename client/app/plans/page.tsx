@@ -74,7 +74,7 @@ const formatCurrency = (amount: number, currency: string) => {
 
 const formatDate = (dateString: string, inputType: string) => {
   if (inputType === "text" || !dateString) {
-    return dateString || "Flexible dates";
+    return dateString || "日期灵活";
   }
   try {
     return format(new Date(dateString), "MMM dd, yyyy");
@@ -86,13 +86,13 @@ const formatDate = (dateString: string, inputType: string) => {
 const getPaceDescription = (pace: number[]) => {
   const paceValue = pace[0] || 3;
   const descriptions = {
-    1: "Very relaxed",
-    2: "Mostly relaxed",
-    3: "Balanced",
-    4: "Quite busy",
-    5: "Action-packed",
+    1: "非常轻松",
+    2: "较为轻松",
+    3: "节奏平衡",
+    4: "较为紧凑",
+    5: "紧凑丰富",
   };
-  return descriptions[paceValue as keyof typeof descriptions] || "Balanced";
+  return descriptions[paceValue as keyof typeof descriptions] || "节奏平衡";
 };
 
 export default function Plans() {
@@ -147,7 +147,7 @@ export default function Plans() {
   const handleDeletePlan = (planId: string) => {
     if (
       window.confirm(
-        "Are you sure you want to delete this trip plan? This action cannot be undone."
+        "您确定要删除此行程吗？此操作无法撤销。"
       )
     ) {
       deleteTripPlan(planId);
@@ -164,7 +164,7 @@ export default function Plans() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
             <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading your trip plans...</p>
+            <p className="text-muted-foreground">正在加载您的行程...</p>
           </div>
         </div>
       </div>
@@ -177,11 +177,11 @@ export default function Plans() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
             <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Error Loading Plans</h2>
+            <h2 className="text-xl font-semibold mb-2">加载行程失败</h2>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={fetchTripPlans} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
+              重新加载
             </Button>
           </div>
         </div>
@@ -196,17 +196,17 @@ export default function Plans() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
             <Luggage className="w-8 h-8 text-primary" />
-            Your Trip Plans
+            我的旅行计划
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Manage and review all your planned adventures
+            管理并查看所有已规划的行程
           </p>
         </div>
 
         {/* Action Bar */}
         <div className="flex justify-between items-center mb-8">
           <div className="text-sm text-muted-foreground">
-            {tripPlans.length} {tripPlans.length === 1 ? "plan" : "plans"} found
+            共找到 {tripPlans.length} 个行程
           </div>
           <div className="flex gap-3">
             <Button onClick={fetchTripPlans} variant="outline" size="sm">
@@ -216,7 +216,7 @@ export default function Plans() {
             <Link href="/plan">
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
-                New Trip Plan
+                创建新行程
               </Button>
             </Link>
           </div>
@@ -226,14 +226,14 @@ export default function Plans() {
         {tripPlans.length === 0 ? (
           <div className="text-center py-16">
             <Globe className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No trip plans yet</h3>
+            <h3 className="text-xl font-semibold mb-2">当前暂无行程</h3>
             <p className="text-muted-foreground mb-6">
-              Start planning your next adventure!
+              开始规划您的下一次旅行吧！
             </p>
             <Link href="/plan">
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
-                Create Your First Trip Plan
+                创建首个行程
               </Button>
             </Link>
           </div>
@@ -259,7 +259,7 @@ export default function Plans() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm">
                       <Plane className="w-4 h-4 text-muted-foreground" />
-                      <span>From {plan.startingLocation}</span>
+                      <span>出发地：{plan.startingLocation}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
@@ -282,26 +282,23 @@ export default function Plans() {
                     {plan.duration && (
                       <div className="flex items-center gap-2 text-sm">
                         <Clock className="w-4 h-4 text-muted-foreground" />
-                        <span>{plan.duration} days</span>
+                        <span>{plan.duration} 天</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2 text-sm">
                       <Users className="w-4 h-4 text-muted-foreground" />
                       <span>
-                        {plan.adults} adult{plan.adults > 1 ? "s" : ""}
+                        {plan.adults} 位成人
                         {plan.children > 0 &&
-                          `, ${plan.children} child${
-                            plan.children > 1 ? "ren" : ""
-                          }`}
+                          `，${plan.children} 位儿童`}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
                       <DollarSign className="w-4 h-4 text-muted-foreground" />
                       <span>
-                        {formatCurrency(plan.budget, plan.budgetCurrency)} per
-                        person
+                        {formatCurrency(plan.budget, plan.budgetCurrency)} 每人
                       </span>
                     </div>
 
@@ -342,13 +339,13 @@ export default function Plans() {
 
                   {/* Pace */}
                   <div className="text-sm text-muted-foreground">
-                    <span className="font-medium">Pace:</span>{" "}
+                    <span className="font-medium">节奏：</span>{" "}
                     {getPaceDescription(plan.pace)}
                   </div>
 
                   {/* Created Date */}
                   <div className="text-xs text-muted-foreground pt-2 border-t">
-                    Created{" "}
+                    创建于 {" "}
                     {format(
                       new Date(plan.createdAt),
                       "MMM dd, yyyy 'at' h:mm a"
@@ -360,7 +357,7 @@ export default function Plans() {
                     <Link href={`/plan/${plan.id}`} className="flex-1">
                       <Button variant="outline" size="sm" className="w-full">
                         <Eye className="w-4 h-4 mr-2" />
-                        View Details
+                        查看详情
                       </Button>
                     </Link>
                     <Button
@@ -375,7 +372,7 @@ export default function Plans() {
                       ) : (
                         <Trash2 className="w-4 h-4 mr-2" />
                       )}
-                      Delete
+                      删除
                     </Button>
                   </div>
                 </CardContent>

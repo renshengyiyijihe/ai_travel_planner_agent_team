@@ -18,11 +18,11 @@ export class PlanService {
       create: {
         tripPlanId: request.trip_plan_id,
         status: 'pending',
-        currentStep: 'Queued for travel plan generation',
+        currentStep: '已排队等待行程生成',
       },
       update: {
         status: 'pending',
-        currentStep: 'Queued for travel plan generation',
+        currentStep: '已排队等待行程生成',
         error: null,
         completedAt: null,
       },

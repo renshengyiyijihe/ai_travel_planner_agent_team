@@ -21,7 +21,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          message: 'Trip plan not found'
+          message: '未找到行程'
         },
         { status: 404 }
       );
@@ -32,12 +32,12 @@ export async function POST(
       where: { tripPlanId: id },
       update: {
         status: 'processing',
-        currentStep: 'Restarting trip plan generation...',
+        currentStep: '正在重新开始行程生成...',
       },
       create: {
         tripPlanId: id,
         status: 'processing',
-        currentStep: 'Restarting trip plan generation...',
+        currentStep: '正在重新开始行程生成...',
       },
     });
 
@@ -88,7 +88,7 @@ export async function POST(
         where: { tripPlanId: id },
         data: {
           status: 'failed',
-          currentStep: 'Failed to restart trip plan generation',
+          currentStep: '重新启动行程生成失败',
         },
       });
 
@@ -96,7 +96,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          message: 'Failed to retry trip planning'
+          message: '重试行程规划失败'
         },
         { status: 500 }
       );
@@ -108,7 +108,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        message: 'Trip planning retry triggered successfully',
+        message: '已成功触发行程重试',
         response: responseData
       },
       { status: 200 }
@@ -122,7 +122,7 @@ export async function POST(
         where: { tripPlanId: params.id },
         data: {
           status: 'failed',
-          currentStep: 'Error occurred while retrying',
+          currentStep: '重试时发生错误',
         },
       });
     } catch (statusError) {
@@ -132,7 +132,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        message: 'Failed to retry trip plan'
+        message: '重试行程失败'
       },
       { status: 500 }
     );

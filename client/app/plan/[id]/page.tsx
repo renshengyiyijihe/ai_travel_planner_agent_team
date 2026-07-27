@@ -131,7 +131,7 @@ interface TripDetails {
 
 // Helper functions
 const formatCurrency = (amount?: number, currency?: string) => {
-  if (!amount) return "Not specified";
+  if (!amount) return "未指定";
   const symbols: Record<string, string> = {
     USD: "$",
     EUR: "€",
@@ -144,7 +144,7 @@ const formatCurrency = (amount?: number, currency?: string) => {
 
 const formatDate = (dateString?: string, inputType?: string) => {
   if (!dateString || inputType === "text") {
-    return dateString || "Flexible dates";
+    return dateString || "日期灵活";
   }
   try {
     return format(new Date(dateString), "MMM dd, yyyy");
@@ -154,16 +154,16 @@ const formatDate = (dateString?: string, inputType?: string) => {
 };
 
 const getPaceDescription = (pace?: number[]) => {
-  if (!pace || !pace.length) return "Balanced";
+  if (!pace || !pace.length) return "节奏平衡";
   const paceValue = pace[0] || 3;
   const descriptions = {
-    1: "Very relaxed",
-    2: "Mostly relaxed",
-    3: "Balanced",
-    4: "Quite busy",
-    5: "Action-packed",
+    1: "非常轻松",
+    2: "较为轻松",
+    3: "节奏平衡",
+    4: "较为紧凑",
+    5: "紧凑丰富",
   };
-  return descriptions[paceValue as keyof typeof descriptions] || "Balanced";
+  return descriptions[paceValue as keyof typeof descriptions] || "节奏平衡";
 };
 
 // Helper function to render status badge
@@ -174,19 +174,19 @@ function StatusBadge({ status }: { status: TripDetails["status"] }) {
   switch (status) {
     case "completed":
       variant = "default"; // Using Tailwind's green for success
-      text = "Completed";
+      text = "已完成";
       break;
     case "pending":
       variant = "secondary"; // Using Tailwind's yellow for pending
-      text = "Pending";
+      text = "待处理";
       break;
     case "in-progress":
       variant = "outline"; // Using Tailwind's blue for in-progress
-      text = "In Progress";
+      text = "进行中";
       break;
     case "failed":
       variant = "destructive";
-      text = "Failed";
+      text = "失败";
       break;
   }
   return (
@@ -229,7 +229,7 @@ export default function TripDetailsPage() {
       console.log("API Response:", data);
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch trip details");
+        throw new Error(data.message || "获取行程详情失败");
       }
 
       if (data.success && data.tripPlan) {
@@ -339,13 +339,13 @@ export default function TripDetailsPage() {
         console.log("Setting trip state:", tripDetails);
         setTrip(tripDetails);
       } else {
-        setError("Trip plan not found");
+        setError("未找到行程");
       }
     } catch (err) {
       console.error("Error fetching trip details:", err);
       setError(
-        `Failed to fetch trip details: ${
-          err instanceof Error ? err.message : "Unknown error"
+        `获取行程详情失败：${
+          err instanceof Error ? err.message : "未知错误"
         }`
       );
     } finally {
@@ -366,7 +366,7 @@ export default function TripDetailsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to retry trip plan");
+        throw new Error(data.message || "重试行程失败");
       }
 
       // Refresh trip details after retry
@@ -377,8 +377,8 @@ export default function TripDetailsPage() {
     } catch (err) {
       console.error("Error retrying trip plan:", err);
       setError(
-        `Failed to retry trip plan: ${
-          err instanceof Error ? err.message : "Unknown error"
+        `重试行程失败：${
+          err instanceof Error ? err.message : "未知错误"
         }`
       );
     } finally {
@@ -460,7 +460,7 @@ export default function TripDetailsPage() {
             {polling && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                Updating...
+                正在更新...
               </div>
             )}
             <StatusBadge status={trip.status} />
@@ -473,7 +473,7 @@ export default function TripDetailsPage() {
       {/* Trip Input Details Section */}
       <section className="bg-muted/30 rounded-lg p-6 border border-border">
         <h2 className="text-2xl font-semibold mb-4 flex items-center">
-          <Globe className="mr-3 h-6 w-6 text-primary" /> Trip Details
+          <Globe className="mr-3 h-6 w-6 text-primary" /> 行程详情
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -482,19 +482,19 @@ export default function TripDetailsPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <MapPin className="h-4 w-4 mr-2 text-primary" />
-                Destination
+                目的地
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
-                  <span className="font-medium">To:</span>{" "}
+                  <span className="font-medium">目的地：</span>{" "}
                   <span className="text-muted-foreground">
                     {trip.destination}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">From:</span>{" "}
+                  <span className="font-medium">出发地：</span>{" "}
                   <span className="text-muted-foreground">
                     {trip.startingLocation}
                   </span>
@@ -508,20 +508,20 @@ export default function TripDetailsPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <CalendarDays className="h-4 w-4 mr-2 text-primary" />
-                Travel Dates
+                旅行日期
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
-                  <span className="font-medium">From:</span>{" "}
+                  <span className="font-medium">开始：</span>{" "}
                   <span className="text-muted-foreground">
                     {formatDate(trip.travelDatesStart, trip.dateInputType)}
                   </span>
                 </div>
                 {trip.travelDatesEnd && (
                   <div>
-                    <span className="font-medium">To:</span>{" "}
+                    <span className="font-medium">结束：</span>{" "}
                     <span className="text-muted-foreground">
                       {formatDate(trip.travelDatesEnd, trip.dateInputType)}
                     </span>
@@ -529,9 +529,9 @@ export default function TripDetailsPage() {
                 )}
                 {trip.duration && (
                   <div>
-                    <span className="font-medium">Duration:</span>{" "}
+                    <span className="font-medium">天数：</span>{" "}
                     <span className="text-muted-foreground">
-                      {trip.duration} days
+                      {trip.duration} 天
                     </span>
                   </div>
                 )}
@@ -544,31 +544,29 @@ export default function TripDetailsPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Users className="h-4 w-4 mr-2 text-primary" />
-                Travelers
+                出行人员
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
-                  <span className="font-medium">Type:</span>{" "}
+                  <span className="font-medium">类型：</span>{" "}
                   <span className="text-muted-foreground">
                     {trip.travelingWith}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">Group:</span>{" "}
+                  <span className="font-medium">人数：</span>{" "}
                   <span className="text-muted-foreground">
-                    {trip.adults} adult{trip.adults !== 1 ? "s" : ""}
+                    {trip.adults} 位成人
                     {trip.children && trip.children > 0
-                      ? `, ${trip.children} child${
-                          trip.children !== 1 ? "ren" : ""
-                        }`
+                      ? `，${trip.children} 位儿童`
                       : ""}
                   </span>
                 </div>
                 {trip.ageGroups && trip.ageGroups.length > 0 && (
                   <div>
-                    <span className="font-medium">Ages:</span>{" "}
+                    <span className="font-medium">年龄：</span>{" "}
                     <span className="text-muted-foreground">
                       {trip.ageGroups.join(", ")}
                     </span>
@@ -583,19 +581,19 @@ export default function TripDetailsPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Home className="h-4 w-4 mr-2 text-primary" />
-                Accommodation
+                住宿安排
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
-                  <span className="font-medium">Type:</span>{" "}
+                  <span className="font-medium">类型：</span>{" "}
                   <span className="text-muted-foreground">
                     {trip.travelStyle}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">Rooms:</span>{" "}
+                  <span className="font-medium">房间：</span>{" "}
                   <span className="text-muted-foreground">{trip.rooms}</span>
                 </div>
               </div>
@@ -607,22 +605,21 @@ export default function TripDetailsPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <DollarSign className="h-4 w-4 mr-2 text-primary" />
-                Budget
+                预算
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
-                  <span className="font-medium">Amount:</span>{" "}
+                  <span className="font-medium">预算：</span>{" "}
                   <span className="text-muted-foreground">
-                    {formatCurrency(trip.budget, trip.budgetCurrency)} per
-                    person
+                    {formatCurrency(trip.budget, trip.budgetCurrency)} 每人
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">Flexible:</span>{" "}
+                  <span className="font-medium">灵活预算：</span>{" "}
                   <span className="text-muted-foreground">
-                    {trip.budgetFlexible ? "Yes" : "No"}
+                    {trip.budgetFlexible ? "是" : "否"}
                   </span>
                 </div>
               </div>
@@ -634,20 +631,20 @@ export default function TripDetailsPage() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Heart className="h-4 w-4 mr-2 text-primary" />
-                Trip Style
+                行程风格
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div>
-                  <span className="font-medium">Pace:</span>{" "}
+                  <span className="font-medium">节奏：</span>{" "}
                   <span className="text-muted-foreground">
                     {getPaceDescription(trip.pace)}
                   </span>
                 </div>
                 {trip.vibes && trip.vibes.length > 0 && (
                   <div>
-                    <span className="font-medium block mb-1">Vibes:</span>
+                    <span className="font-medium block mb-1">氛围：</span>
                     <div className="flex flex-wrap gap-1">
                       {trip.vibes.map((vibe) => (
                         <Badge
@@ -663,7 +660,7 @@ export default function TripDetailsPage() {
                 )}
                 {trip.priorities && trip.priorities.length > 0 && (
                   <div>
-                    <span className="font-medium block mb-1">Priorities:</span>
+                    <span className="font-medium block mb-1">优先事项：</span>
                     <div className="flex flex-wrap gap-1">
                       {trip.priorities.map((priority) => (
                         <Badge
@@ -689,13 +686,13 @@ export default function TripDetailsPage() {
           trip.additionalInfo) && (
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-3">
-              Additional Information
+              其他信息
             </h3>
             <Card>
               <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {trip.interests && (
                   <div>
-                    <h4 className="font-medium mb-1">Specific Interests:</h4>
+                    <h4 className="font-medium mb-1">特别兴趣：</h4>
                     <p className="text-muted-foreground text-sm">
                       {trip.interests}
                     </p>
@@ -703,7 +700,7 @@ export default function TripDetailsPage() {
                 )}
                 {trip.beenThereBefore && (
                   <div>
-                    <h4 className="font-medium mb-1">Previous Visits:</h4>
+                    <h4 className="font-medium mb-1">之前访问：</h4>
                     <p className="text-muted-foreground text-sm">
                       {trip.beenThereBefore}
                     </p>
@@ -711,7 +708,7 @@ export default function TripDetailsPage() {
                 )}
                 {trip.lovedPlaces && (
                   <div>
-                    <h4 className="font-medium mb-1">Loved Places:</h4>
+                    <h4 className="font-medium mb-1">喜爱地点：</h4>
                     <p className="text-muted-foreground text-sm">
                       {trip.lovedPlaces}
                     </p>
@@ -720,7 +717,7 @@ export default function TripDetailsPage() {
                 {trip.additionalInfo && (
                   <div className="md:col-span-2">
                     <h4 className="font-medium mb-1">
-                      Additional Information:
+                      其他说明：
                     </h4>
                     <p className="text-muted-foreground text-sm">
                       {trip.additionalInfo}
@@ -757,7 +754,7 @@ export default function TripDetailsPage() {
           {(trip.status === "pending" || trip.status === "in-progress") &&
             trip.current_step && (
               <div className="mt-4 bg-muted/30 p-4 rounded-lg max-w-md mx-auto">
-                <h3 className="font-medium text-sm mb-1">Current Progress:</h3>
+                <h3 className="font-medium text-sm mb-1">当前进度：</h3>
                 <p className="text-primary font-medium">{trip.current_step}</p>
               </div>
             )}
@@ -766,7 +763,7 @@ export default function TripDetailsPage() {
             <div className="flex justify-center mt-4">
               <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Updating automatically...
+                正在自动更新...
               </div>
             </div>
           )}
@@ -782,7 +779,7 @@ export default function TripDetailsPage() {
                 {retryLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Retrying...
+                    正在重试...
                   </>
                 ) : (
                   <>
@@ -802,7 +799,7 @@ export default function TripDetailsPage() {
                       <path d="M3 22v-6h6"></path>
                       <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
                     </svg>
-                    Retry Plan Generation
+                    重新生成行程
                   </>
                 )}
               </button>
@@ -816,22 +813,22 @@ export default function TripDetailsPage() {
         <Tabs defaultValue="itinerary" className="w-full">
           <TabsList className="mb-4 flex w-full justify-start overflow-auto">
             <TabsTrigger value="itinerary" className="flex items-center">
-              <CalendarDays className="h-4 w-4 mr-2" /> Itinerary
+              <CalendarDays className="h-4 w-4 mr-2" /> 行程日程
             </TabsTrigger>
             <TabsTrigger value="guide" className="flex items-center">
-              <Lightbulb className="h-4 w-4 mr-2" /> Destination Guide
+              <Lightbulb className="h-4 w-4 mr-2" /> 目的地指南
             </TabsTrigger>
             <TabsTrigger value="hotels" className="flex items-center">
-              <Home className="h-4 w-4 mr-2" /> Hotels
+              <Home className="h-4 w-4 mr-2" /> 酒店
             </TabsTrigger>
             <TabsTrigger value="flights" className="flex items-center">
-              <Plane className="h-4 w-4 mr-2" /> Flights
+              <Plane className="h-4 w-4 mr-2" /> 航班
             </TabsTrigger>
             <TabsTrigger value="dining" className="flex items-center">
-              <Utensils className="h-4 w-4 mr-2" /> Dining
+              <Utensils className="h-4 w-4 mr-2" /> 美食
             </TabsTrigger>
             <TabsTrigger value="budget" className="flex items-center">
-              <Receipt className="h-4 w-4 mr-2" /> Budget
+              <Receipt className="h-4 w-4 mr-2" /> 预算分析
             </TabsTrigger>
           </TabsList>
 
@@ -842,8 +839,7 @@ export default function TripDetailsPage() {
                 {/* Day-by-Day Plan Section */}
                 <section>
                   <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                    <CalendarDays className="mr-3 h-6 w-6 text-primary" /> Daily
-                    Itinerary
+                    <CalendarDays className="mr-3 h-6 w-6 text-primary" /> 日程安排
                   </h2>
                   <div className="grid grid-cols-1 gap-6">
                     {trip.itinerary.day_by_day_plan.map((dayPlan) => (
@@ -857,7 +853,7 @@ export default function TripDetailsPage() {
                               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground mr-3">
                                 {dayPlan.day}
                               </span>
-                              <span>Day {dayPlan.day}</span>
+                              <span>第 {dayPlan.day} 天</span>
                             </CardTitle>
                             {dayPlan.date && (
                               <Badge variant="outline" className="ml-auto">
@@ -878,7 +874,7 @@ export default function TripDetailsPage() {
                           <div className="bg-muted/30 p-4 rounded-lg border border-border">
                             <div className="flex items-center mb-3">
                               <Sun className="h-5 w-5 mr-2 text-yellow-500" />
-                              <h3 className="font-medium">Morning</h3>
+                              <h3 className="font-medium">上午</h3>
                             </div>
                             <p className="text-muted-foreground whitespace-pre-line">
                               {dayPlan.morning}
@@ -887,7 +883,7 @@ export default function TripDetailsPage() {
                           <div className="bg-muted/30 p-4 rounded-lg border border-border">
                             <div className="flex items-center mb-3">
                               <Sun className="h-5 w-5 mr-2 text-orange-500" />
-                              <h3 className="font-medium">Afternoon</h3>
+                              <h3 className="font-medium">下午</h3>
                             </div>
                             <p className="text-muted-foreground whitespace-pre-line">
                               {dayPlan.afternoon}
@@ -896,7 +892,7 @@ export default function TripDetailsPage() {
                           <div className="bg-muted/30 p-4 rounded-lg border border-border">
                             <div className="flex items-center mb-3">
                               <Moon className="h-5 w-5 mr-2 text-indigo-500" />
-                              <h3 className="font-medium">Evening</h3>
+                              <h3 className="font-medium">晚上</h3>
                             </div>
                             <p className="text-muted-foreground whitespace-pre-line">
                               {dayPlan.evening}
@@ -908,7 +904,7 @@ export default function TripDetailsPage() {
                             <div className="flex items-start">
                               <Paperclip className="h-5 w-5 mr-2 mt-0.5 text-primary flex-shrink-0" />
                               <p className="text-sm text-muted-foreground">
-                                <span className="font-medium">Note:</span>{" "}
+                                <span className="font-medium">备注：</span>{" "}
                                 {dayPlan.notes}
                               </p>
                             </div>
@@ -925,7 +921,7 @@ export default function TripDetailsPage() {
                     <section>
                       <h2 className="text-2xl font-semibold mb-6 flex items-center">
                         <Landmark className="mr-3 h-6 w-6 text-primary" />{" "}
-                        Attractions & Activities
+                        推荐景点与活动
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {trip.itinerary.attractions.map((attraction, index) => (
@@ -955,8 +951,7 @@ export default function TripDetailsPage() {
                 {trip.itinerary.tips && trip.itinerary.tips.length > 0 && (
                   <section>
                     <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                      <Lightbulb className="mr-3 h-6 w-6 text-primary" /> Travel
-                      Tips
+                      <Lightbulb className="mr-3 h-6 w-6 text-primary" /> 旅行建议
                     </h2>
                     <Card>
                       <CardContent className="pt-6">
@@ -987,11 +982,10 @@ export default function TripDetailsPage() {
                 <CardHeader className="bg-muted/30">
                   <CardTitle className="flex items-center">
                     <Lightbulb className="h-5 w-5 mr-2 text-primary" />{" "}
-                    Destination Guide
+                    目的地指南
                   </CardTitle>
                   <CardDescription>
-                    Tourist information and recommendations for{" "}
-                    {trip.destination}
+                    {trip.destination} 的旅游信息与推荐
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -1009,10 +1003,10 @@ export default function TripDetailsPage() {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h2 className="text-xl font-semibold mb-2">
-                  Destination Guide Not Available
+                  目的地指南不可用
                 </h2>
                 <p className="text-muted-foreground">
-                  Destination guide information is not available for this trip.
+                  此行程暂无目的地指南信息。
                 </p>
               </div>
             )}
@@ -1025,8 +1019,7 @@ export default function TripDetailsPage() {
             trip.itinerary.hotels.length > 0 ? (
               <section>
                 <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                  <Home className="mr-3 h-6 w-6 text-primary" /> Recommended
-                  Accommodations
+                  <Home className="mr-3 h-6 w-6 text-primary" /> 推荐住宿
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {trip.itinerary.hotels.map((hotel, index) => (
@@ -1115,7 +1108,7 @@ export default function TripDetailsPage() {
                             rel="noopener noreferrer"
                             className="text-primary hover:underline text-sm flex items-center"
                           >
-                            View Hotel / Book{" "}
+                            查看酒店 / 预订
                             <Globe className="h-4 w-4 ml-1.5" />
                           </a>
                         </CardFooter>
@@ -1131,10 +1124,10 @@ export default function TripDetailsPage() {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h2 className="text-xl font-semibold mb-2">
-                  Hotel Information Not Available
+                  酒店信息不可用
                 </h2>
                 <p className="text-muted-foreground">
-                  Hotel recommendations are not available for this trip.
+                  此行程暂无酒店推荐。
                 </p>
               </div>
             )}
@@ -1153,8 +1146,7 @@ export default function TripDetailsPage() {
                   trip.itinerary.flights.length > 0 && (
                     <section>
                       <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                        <Plane className="mr-3 h-6 w-6 text-primary" /> Selected
-                        Flights
+                        <Plane className="mr-3 h-6 w-6 text-primary" /> 机票推荐
                       </h2>
                       <div className="space-y-6">
                         {trip.itinerary.flights
@@ -1177,7 +1169,7 @@ export default function TripDetailsPage() {
                                   flight.flight_number !== "N/A" &&
                                   flight.flight_number !== "TBD" && (
                                     <CardDescription>
-                                      Flight {flight.flight_number}
+                                      航班号 {flight.flight_number}
                                     </CardDescription>
                                   )}
                               </CardHeader>
@@ -1186,7 +1178,7 @@ export default function TripDetailsPage() {
                                   <div className="bg-muted/20 p-3 rounded-lg">
                                     <p className="font-medium flex items-center">
                                       <Clock className="h-4 w-4 mr-2 text-primary" />
-                                      Duration:
+                                      时长：
                                     </p>
                                     <p className="text-muted-foreground mt-1">
                                       {flight.duration}
@@ -1195,7 +1187,7 @@ export default function TripDetailsPage() {
                                   <div className="bg-muted/20 p-3 rounded-lg">
                                     <p className="font-medium flex items-center">
                                       <DollarSign className="h-4 w-4 mr-2 text-primary" />
-                                      Price:
+                                      价格：
                                     </p>
                                     <p className="text-muted-foreground mt-1">
                                       {flight.price}
@@ -1204,24 +1196,24 @@ export default function TripDetailsPage() {
                                   <div className="bg-muted/20 p-3 rounded-lg">
                                     <p className="font-medium flex items-center">
                                       <Clock className="h-4 w-4 mr-2 text-green-500" />
-                                      Departure:
+                                      出发时间：
                                     </p>
                                     <p className="text-muted-foreground mt-1">
-                                      {flight.departure_time || "Not specified"}
+                                      {flight.departure_time || "未指定"}
                                     </p>
                                   </div>
                                   <div className="bg-muted/20 p-3 rounded-lg">
                                     <p className="font-medium flex items-center">
-                                      <Clock className="h-4 w-4 mr-2 text-red-500" />
-                                      Arrival:
+                                      <Clock className="h-4 w-4 mr-2 text-primary" />
+                                      到达时间：
                                     </p>
                                     <p className="text-muted-foreground mt-1">
-                                      {flight.arrival_time || "Not specified"}
+                                      {flight.arrival_time || "未指定"}
                                     </p>
                                   </div>
                                   {typeof flight.stops !== "undefined" && (
                                     <div className="bg-muted/20 p-3 rounded-lg">
-                                      <p className="font-medium">Stops:</p>
+                                      <p className="font-medium">经停：</p>
                                       <p className="text-muted-foreground mt-1">
                                         {flight.stops}
                                       </p>
@@ -1239,7 +1231,7 @@ export default function TripDetailsPage() {
                                       rel="noopener noreferrer"
                                       className="text-primary hover:underline text-sm flex items-center"
                                     >
-                                      Book / View Flight{" "}
+                                      预订 / 查看航班{" "}
                                       <Globe className="h-4 w-4 ml-1.5" />
                                     </a>
                                   </CardFooter>
@@ -1257,10 +1249,10 @@ export default function TripDetailsPage() {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h2 className="text-xl font-semibold mb-2">
-                  Flight Information Not Available
+                  航班信息不可用
                 </h2>
                 <p className="text-muted-foreground">
-                  Flight information is not available for this trip.
+                  此行程暂无航班信息。
                 </p>
               </div>
             )}
@@ -1279,10 +1271,10 @@ export default function TripDetailsPage() {
                     <CardHeader className="bg-muted/30">
                       <CardTitle className="flex items-center">
                         <Utensils className="h-5 w-5 mr-2 text-primary" />{" "}
-                        Restaurant Recommendations
+                        餐厅推荐
                       </CardTitle>
                       <CardDescription>
-                        Dining options for your trip
+                        本次行程的美食推荐
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
@@ -1304,7 +1296,7 @@ export default function TripDetailsPage() {
                     <section>
                       <h2 className="text-2xl font-semibold mb-6 flex items-center">
                         <Utensils className="mr-3 h-6 w-6 text-primary" />{" "}
-                        Selected Restaurants
+                        精选餐厅
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {trip.itinerary.restaurants.map((restaurant, index) => (
@@ -1338,7 +1330,7 @@ export default function TripDetailsPage() {
                                   rel="noopener noreferrer"
                                   className="text-primary hover:underline text-sm flex items-center"
                                 >
-                                  Visit Website{" "}
+                                  访问官网{" "}
                                   <Globe className="h-4 w-4 ml-1.5" />
                                 </a>
                               </CardFooter>
@@ -1356,10 +1348,10 @@ export default function TripDetailsPage() {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h2 className="text-xl font-semibold mb-2">
-                  Dining Information Not Available
+                  美食信息不可用
                 </h2>
                 <p className="text-muted-foreground">
-                  Restaurant recommendations are not available for this trip.
+                  此行程暂无餐厅推荐。
                 </p>
               </div>
             )}
@@ -1371,11 +1363,10 @@ export default function TripDetailsPage() {
               <Card className="overflow-hidden">
                 <CardHeader className="bg-muted/30">
                   <CardTitle className="flex items-center">
-                    <Receipt className="h-5 w-5 mr-2 text-primary" /> Budget
-                    Analysis
+                    <Receipt className="h-5 w-5 mr-2 text-primary" /> 预算分析
                   </CardTitle>
                   <CardDescription>
-                    Budget recommendations and optimization strategies
+                    预算建议与优化策略
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -1393,10 +1384,10 @@ export default function TripDetailsPage() {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h2 className="text-xl font-semibold mb-2">
-                  Budget Information Not Available
+                  预算信息不可用
                 </h2>
                 <p className="text-muted-foreground">
-                  Budget analysis information is not available for this trip.
+                  此行程暂无预算分析信息。
                 </p>
               </div>
             )}

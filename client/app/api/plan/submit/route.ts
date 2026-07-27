@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Missing required fields: name, destination, or starting location'
+          message: '缺少必填字段：名称、目的地或出发地'
         },
         { status: 400 }
       );
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Failed to trigger trip planning'
+          message: '触发行程规划失败'
         },
         { status: 500 }
       );
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Trip planning triggered successfully',
+        message: '已成功触发行程规划',
         response: responseData,
         tripPlanId: savedTripPlan.id
       },
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: 'Failed to save trip plan to database'
+        message: '保存行程信息到数据库失败'
       },
       { status: 500 }
     );

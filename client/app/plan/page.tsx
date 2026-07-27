@@ -281,7 +281,7 @@ export default function Plan() {
       const result = await response.json();
 
       if (result.success) {
-        setSubmitMessage("🎉 Your trip plan has been submitted successfully!");
+        setSubmitMessage("🎉 行程已成功提交！");
         console.log("Trip submitted with ID:", result.tripPlanId);
 
         // Show success message briefly, then redirect to the plan details page
@@ -289,11 +289,11 @@ export default function Plan() {
           router.push(`/plan/${result.tripPlanId}`);
         }, 1500);
       } else {
-        setSubmitMessage("❌ Failed to submit trip plan. Please try again.");
+        setSubmitMessage("❌ 提交行程失败，请重试。");
       }
     } catch (error) {
       console.error("Submission error:", error);
-      setSubmitMessage("❌ Something went wrong. Please try again.");
+      setSubmitMessage("❌ 提交失败，请稍后重试。");
     } finally {
       setIsSubmitting(false);
     }
@@ -1249,16 +1249,16 @@ export default function Plan() {
                       render={() => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            旅行优先选择（可选）
+                            旅行优先事项（可选）
                           </FormLabel>
                           <div className="flex flex-wrap gap-2 mt-2">
                             {[
-                              "Comfort",
-                              "Budget-friendly",
-                              "Unique stays",
-                              "Local experiences",
-                              "Instagram-worthy spots",
-                              "Safety",
+                              "舒适优先",
+                              "预算友好",
+                              "特色住宿",
+                              "本地体验",
+                              "拍照打卡",
+                              "安全第一",
                             ].map((priority) => (
                               <Badge
                                 key={priority}
@@ -1284,17 +1284,17 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Any specific interests or things to avoid?
+                            有没有特别兴趣或想避免的内容？
                           </FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="e.g., Love street food, avoid crowded places, interested in local art..."
+                              placeholder="例如：喜欢街头美食，避免人多的地方，对当地艺术感兴趣..."
                               {...field}
                               className="min-h-[100px] text-base"
                             />
                           </FormControl>
                           <FormDescription>
-                            帮助我们更精准地定制您的专属行程。
+                            帮助我们更好地个性化您的行程。
                           </FormDescription>
                         </FormItem>
                       )}
@@ -1339,7 +1339,7 @@ export default function Plan() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            How packed should your days be?
+                            您希望每天的行程节奏如何？
                           </FormLabel>
                           <FormControl>
                             <div className="px-4 py-6">
@@ -1359,16 +1359,16 @@ export default function Plan() {
                             </div>
                           </FormControl>
                           <FormDescription>
-                            Current setting:{" "}
+                            当前选择：{" "}
                             {field.value?.[0] === 1
-                              ? "Very relaxed"
+                              ? "非常轻松"
                               : field.value?.[0] === 2
-                              ? "Mostly relaxed"
+                              ? "较为轻松"
                               : field.value?.[0] === 3
-                              ? "Balanced"
+                              ? "节奏平衡"
                               : field.value?.[0] === 4
-                              ? "Quite busy"
-                              : "Action-packed"}
+                              ? "较为紧凑"
+                              : "紧凑丰富"}
                           </FormDescription>
                         </FormItem>
                       )}
@@ -1459,12 +1459,7 @@ export default function Plan() {
                 className={`p-4 rounded-lg border text-center font-medium ${
                   submitMessage.includes("🎉")
                     ? "bg-green-50 border-green-200 text-green-800"
-                    : "bg-red-50 border-red-200 text-red-800"
-                }`}
-              >
-                {submitMessage}
-              </div>
-            )}
+                      : "bg-primary/10 border-primary/20 text-primary"
 
             {/* Navigation */}
             <div className="flex justify-between items-center">

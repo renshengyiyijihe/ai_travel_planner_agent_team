@@ -14,13 +14,13 @@ export class PlanController {
       const tripPlanId = await this.planService.triggerPlanGeneration(request);
       return {
         success: true,
-        message: 'Travel plan agent triggered successfully',
+        message: '旅行计划代理已成功触发',
         trip_plan_id: tripPlanId,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HttpException(
-        `Failed to trigger travel plan agent: ${message}`,
+        `触发旅行计划代理失败：${message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

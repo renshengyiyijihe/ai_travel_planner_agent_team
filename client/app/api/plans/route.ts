@@ -21,7 +21,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        message: 'Failed to fetch trip plans'
+        message: '获取行程列表失败'
       },
       { status: 500 }
     );
