@@ -1460,7 +1460,11 @@ export default function Plan() {
                   submitMessage.includes("🎉")
                     ? "bg-green-50 border-green-200 text-green-800"
                       : "bg-primary/10 border-primary/20 text-primary"
-
+                }`}
+              >
+                {submitMessage}
+              </div>
+            )}
             {/* Navigation */}
             <div className="flex justify-between items-center">
               <Button
