@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://ai-travel-planner-agent-team-backend.vercel.app";
 
 export async function middleware(request: NextRequest) {
 
