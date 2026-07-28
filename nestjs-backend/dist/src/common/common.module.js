@@ -5,19 +5,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommonModule = void 0;
-var common_1 = require("@nestjs/common");
-var health_controller_1 = require("./health.controller");
-var CommonModule = (function () {
-    function CommonModule() {
-    }
-    CommonModule = __decorate([
-        common_1.Module({
-            controllers: [health_controller_1.HealthController]
-        })
-    ], CommonModule);
-    return CommonModule;
-}());
+const common_1 = require("@nestjs/common");
+const health_controller_1 = require("./health.controller");
+let CommonModule = class CommonModule {
+};
 exports.CommonModule = CommonModule;
+exports.CommonModule = CommonModule = __decorate([
+    (0, common_1.Module)({
+        controllers: [health_controller_1.HealthController],
+    })
+], CommonModule);
 //# sourceMappingURL=common.module.js.map

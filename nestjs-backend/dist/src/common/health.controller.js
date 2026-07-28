@@ -8,28 +8,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.HealthController = void 0;
-var common_1 = require("@nestjs/common");
-var HealthController = (function () {
-    function HealthController() {
-    }
-    HealthController.prototype.healthCheck = function () {
+const common_1 = require("@nestjs/common");
+let HealthController = class HealthController {
+    healthCheck() {
         return {
             status: 'healthy',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         };
-    };
-    __decorate([
-        common_1.Get('health'),
-        __metadata("design:type", Function),
-        __metadata("design:paramtypes", []),
-        __metadata("design:returntype", void 0)
-    ], HealthController.prototype, "healthCheck");
-    HealthController = __decorate([
-        common_1.Controller('api')
-    ], HealthController);
-    return HealthController;
-}());
+    }
+};
 exports.HealthController = HealthController;
+__decorate([
+    (0, common_1.Get)('health'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HealthController.prototype, "healthCheck", null);
+exports.HealthController = HealthController = __decorate([
+    (0, common_1.Controller)('api')
+], HealthController);
 //# sourceMappingURL=health.controller.js.map

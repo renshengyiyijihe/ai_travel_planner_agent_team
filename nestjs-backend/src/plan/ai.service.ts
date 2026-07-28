@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 import { ChatOpenAI } from '@langchain/openai';
 import { TravelPlanAgentRequestDto } from './dto/travel-plan.dto';
 
@@ -72,6 +73,82 @@ interface LangGraphWorkflowContext {
   budget: number;
   currency: string;
 }
+
+interface WorkflowGraphState {
+  destination: string;
+  markdownPrompt: string;
+  request: TravelPlanAgentRequestDto;
+  travelRequest: any;
+  startDate: string;
+  endDate: string;
+  duration: number;
+  budget: number;
+  currency: string;
+  stageOutputs: Partial<Record<WorkflowStageName, string>>;
+  workflowOrder: WorkflowStageName[];
+  supervisorSummary: string;
+  lastAgentName: string;
+  currentStage: WorkflowStageName | null;
+}
+
+const WorkflowStateAnnotation = Annotation.Root({
+  destination: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => '',
+  }),
+  markdownPrompt: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => '',
+  }),
+  request: Annotation<TravelPlanAgentRequestDto>({
+    reducer: (left: TravelPlanAgentRequestDto, right: TravelPlanAgentRequestDto) => right || left,
+    default: () => ({}) as TravelPlanAgentRequestDto,
+  }),
+  travelRequest: Annotation<any>({
+    reducer: (left: any, right: any) => right || left,
+    default: () => ({}),
+  }),
+  startDate: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => '',
+  }),
+  endDate: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => '',
+  }),
+  duration: Annotation<number>({
+    reducer: (left: number, right: number) => right ?? left,
+    default: () => 0,
+  }),
+  budget: Annotation<number>({
+    reducer: (left: number, right: number) => right ?? left,
+    default: () => 0,
+  }),
+  currency: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => 'USD',
+  }),
+  stageOutputs: Annotation<Partial<Record<WorkflowStageName, string>>>({
+    reducer: (left: Partial<Record<WorkflowStageName, string>>, right: Partial<Record<WorkflowStageName, string>>) => ({ ...left, ...right }),
+    default: () => ({}),
+  }),
+  workflowOrder: Annotation<WorkflowStageName[]>({
+    reducer: (left: WorkflowStageName[], right: WorkflowStageName[]) => [...left, ...right],
+    default: () => [],
+  }),
+  supervisorSummary: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => '',
+  }),
+  lastAgentName: Annotation<string>({
+    reducer: (left: string, right: string) => right || left,
+    default: () => '',
+  }),
+  currentStage: Annotation<WorkflowStageName | null>({
+    reducer: (left: WorkflowStageName | null, right: WorkflowStageName | null) => right ?? left,
+    default: () => null,
+  }),
+});
 
 @Injectable()
 export class AiService {
@@ -187,9 +264,25 @@ export class AiService {
     onStageComplete?: (payload: { stage: WorkflowStageName; content: string; agentName: string }) => Promise<void> | void,
   ): Promise<{ stageOutputs: Record<WorkflowStageName, string>; supervisorSummary: string; workflowOrder: WorkflowStageName[] }> {
     const stageOrder = this.getStageOrder(context.travelRequest);
-    const stageOutputs: Record<WorkflowStageName, string> = {};
-    const workflowOrder: WorkflowStageName[] = [];
     const agentGraph = this.buildAgentGraph();
+
+    const builder = new StateGraph(WorkflowStateAnnotation);
+    const initialState: WorkflowGraphState = {
+      destination: context.destination,
+      markdownPrompt: context.markdownPrompt,
+      request: context.request,
+      travelRequest: context.travelRequest,
+      startDate: context.startDate,
+      endDate: context.endDate,
+      duration: context.duration,
+      budget: context.budget,
+      currency: context.currency,
+      stageOutputs: {},
+      workflowOrder: [],
+      supervisorSummary: '',
+      lastAgentName: '',
+      currentStage: null,
+    };
 
     for (const stage of stageOrder) {
       const agent = agentGraph[stage];
@@ -203,24 +296,64 @@ export class AiService {
         context.budget,
         context.currency,
       );
-      const content = await this.runAgentNode(
-        stage,
-        agent.agentName,
-        context.destination,
-        context.markdownPrompt,
-        fallback,
-        context.request,
-        agent.systemPrompt,
-      );
-      stageOutputs[stage] = content;
-      workflowOrder.push(stage);
-      await onStageComplete?.({ stage, content, agentName: agent.agentName });
+
+      builder.addNode(stage, async (state: WorkflowGraphState) => {
+        const content = await this.runAgentNode(
+          stage,
+          agent.agentName,
+          state.destination,
+          state.markdownPrompt,
+          fallback,
+          state.request,
+          agent.systemPrompt,
+        );
+
+        await onStageComplete?.({ stage, content, agentName: agent.agentName });
+
+        return {
+          stageOutputs: { [stage]: content } as Partial<Record<WorkflowStageName, string>>,
+          workflowOrder: [stage],
+          lastAgentName: agent.agentName,
+          currentStage: stage,
+        };
+      });
     }
 
-    const supervisorSummary = await this.runSupervisorAgent(context, stageOutputs);
-    stageOutputs.supervisor = supervisorSummary;
-    workflowOrder.push('supervisor');
-    await onStageComplete?.({ stage: 'supervisor', content: supervisorSummary, agentName: 'Supervisor Agent' });
+    builder.addNode('supervisor', async (state: WorkflowGraphState) => {
+      const supervisorSummary = await this.runSupervisorAgent(context, state.stageOutputs as Record<WorkflowStageName, string>);
+      await onStageComplete?.({ stage: 'supervisor', content: supervisorSummary, agentName: 'Supervisor Agent' });
+
+      return {
+        stageOutputs: { supervisor: supervisorSummary } as Partial<Record<WorkflowStageName, string>>,
+        workflowOrder: ['supervisor'],
+        supervisorSummary,
+        lastAgentName: 'Supervisor Agent',
+        currentStage: 'supervisor',
+      };
+    });
+
+    const firstStage = stageOrder[0];
+    if (firstStage) {
+      builder.addEdge(START, firstStage);
+    }
+
+    for (let index = 0; index < stageOrder.length - 1; index += 1) {
+      builder.addEdge(stageOrder[index], stageOrder[index + 1]);
+    }
+
+    if (stageOrder.length > 0) {
+      builder.addEdge(stageOrder[stageOrder.length - 1], 'supervisor');
+    } else {
+      builder.addEdge(START, 'supervisor');
+    }
+
+    builder.addEdge('supervisor', END);
+
+    const graph = builder.compile();
+    const result = await graph.invoke(initialState);
+    const stageOutputs = (result.stageOutputs ?? {}) as Record<WorkflowStageName, string>;
+    const workflowOrder = (result.workflowOrder ?? []) as WorkflowStageName[];
+    const supervisorSummary = result.supervisorSummary || stageOutputs.supervisor || '';
 
     return { stageOutputs, supervisorSummary, workflowOrder };
   }
@@ -263,35 +396,7 @@ export class AiService {
     request: TravelPlanAgentRequestDto,
     systemPrompt: string,
   ): Promise<string> {
-    const payload = { stage, destination, prompt, fallback, request, agentName, systemPrompt } as any;
-
-    try {
-      const orchestrator = await this.createLangGraphOrchestrator();
-      if (orchestrator?.runStage) {
-        this.logger.log(`Running ${agentName} for stage ${stage}`);
-        const response = await orchestrator.runStage(payload);
-        if (typeof response === 'string' && response.trim()) {
-          return response;
-        }
-        if (response?.text && typeof response.text === 'string' && response.text.trim()) {
-          return response.text;
-        }
-      }
-
-      if (orchestrator?.run) {
-        const response = await orchestrator.run(payload);
-        if (typeof response === 'string' && response.trim()) {
-          return response;
-        }
-        if (response?.text && typeof response.text === 'string' && response.text.trim()) {
-          return response.text;
-        }
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`LangGraph agent ${agentName} failed, falling back to LLM: ${message}`);
-    }
-
+    this.logger.log(`Running ${agentName} for stage ${stage}`);
     return this.runSingleModelStage(stage, destination, prompt, fallback, agentName, systemPrompt);
   }
 
@@ -349,35 +454,6 @@ export class AiService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(`Supervisor agent failed, using fallback: ${message}`);
       return this.buildSupervisorFallback(context.destination, context.travelRequest);
-    }
-  }
-
-  private async createLangGraphOrchestrator(): Promise<any | null> {
-    if (process.env.LANGGRAPH_ENABLED === 'false') {
-      return null;
-    }
-
-    try {
-      const langgraph = await import('@langchain/langgraph');
-      if (!langgraph) {
-        return null;
-      }
-
-      const orchestrator = {
-        runStage: async (payload: any) => this.runSingleModelStage(payload.stage, payload.destination, payload.prompt, payload.fallback, payload.agentName, payload.systemPrompt),
-        run: async (payload: any) => ({
-          text: await this.runSingleModelStage(payload.stage, payload.destination, payload.prompt, payload.fallback, payload.agentName, payload.systemPrompt),
-        }),
-      };
-
-      if (typeof langgraph.StateGraph === 'function' || typeof langgraph.createSupervisor === 'function' || langgraph.default) {
-        return orchestrator;
-      }
-
-      return orchestrator;
-    } catch (error) {
-      this.logger.warn(`LangGraph package not available, falling back to ChatOpenAI route: ${String(error)}`);
-      return null;
     }
   }
 
